@@ -89,8 +89,8 @@
                                             <i class="fas fa-check text-2xl"></i>
                                         </div>
                                         <div>
-                                            <h3 class="text-xl font-black italic">¡Buen descanso!</h3>
-                                            <p class="text-slate-400 text-sm">Has finalizado tu jornada de hoy.</p>
+                                            <h3 class="text-xl font-black italic">¡Comienza la jornada!</h3>
+                                            <p class="text-slate-400 text-sm">Tu jornada de hoy finalizara.</p>
                                         </div>
                                     </div>
                                     <div class="mt-6 md:mt-0 text-center md:text-right border-l border-slate-700 pl-6">

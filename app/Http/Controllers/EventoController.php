@@ -140,16 +140,17 @@ public function update(Request $request, $id)
 
     return redirect()->route('admin.dashboard')->with('success', 'Proyecto actualizado con éxito');
 }
-public function show($id)
+public function show($id )
 {
-    // Si alguien intenta entrar a /admin/proyectos/index por error,
-    // lo redirigimos a la lista principal.
+
+
     if ($id === 'index') {
         return redirect()->route('admin.proyectos.index');
     }
-
+    $evento = \App\Models\Evento::with('user')->findOrFail($id);
     $proyecto = Evento::findOrFail($id);
     return view('admin.proyectos.show', compact('proyecto'));
+    return view('admin.proyectos.show', compact('evento'));
 }
 
 public function reportes()
@@ -162,4 +163,17 @@ public function reportes()
 
     return view('admin.proyectos.reportes', compact('reportes'));
 }
+public function finalizados()
+{
+    // Filtramos los que tienen activo = 0
+    $eventosCulminados = \App\Models\Evento::where('activo', 0)
+        ->with('user')
+        ->orderBy('updated_at', 'desc')
+        ->get();
+
+    return view('admin.proyectos.finalizados', compact('eventosCulminados'));
 }
+
+
+}
+

@@ -30,6 +30,11 @@
                     @else
                         <a href="{{ route('login') }}" class="text-sm font-semibold px-5 py-2.5 border border-zinc-200 rounded-xl hover:bg-zinc-50 transition text-zinc-900">Entrar</a>
 
+               @if (Route::has('register'))
+                            <a href="{{ route('register') }}" >Crear cuenta</a>
+                        @endif
+
+
                     @endauth
                 @endif
             </nav>

@@ -15,8 +15,8 @@
 
                     {{-- BLOQUE EXCLUSIVO PARA ADMINISTRADOR --}}
                     @if(auth()->user()->role === 'admin')
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                            {{ __('Panel Control') }}
+                        <x-nav-link :href="route('admin.admin.panelControl')" :active="request()->routeIs('admin.admin.panelControl')">
+                        {{ __('Panel Control') }}
                         </x-nav-link>
 
                         <x-nav-link :href="route('admin.empleados.index')" :active="request()->routeIs('admin.empleados.*')">

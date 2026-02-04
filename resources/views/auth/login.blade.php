@@ -43,11 +43,7 @@
                 {{ __('Entrar') }}
             </x-primary-button>
 
-            <x-primary-button class="ms-3">
-               @if (Route::has('register'))
-                            <a href="{{ route('register') }}" >Crear cuenta</a>
-                        @endif
-            </x-primary-button>
+
         </div>
     </form>
 </x-guest-layout>

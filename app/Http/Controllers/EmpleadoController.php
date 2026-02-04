@@ -133,4 +133,21 @@ class EmpleadoController extends Controller
 
         return back()->with('error', 'No se encontró una jornada activa para hoy o ya fue cerrada.');
     }
+
+    public function enviarReporte(Request $request, $id)
+{
+    // 1. Validar que el texto no sea malicioso y tenga contenido
+    $request->validate([
+        'reporte_trabajador' => 'required|string|max:1000',
+    ]);
+
+    // 2. Buscar el proyecto asignado
+    $proyecto = \App\Models\Evento::findOrFail($id);
+
+    // 3. Guardar el avance técnico
+    $proyecto->reporte_trabajador = $request->reporte_trabajador;
+    $proyecto->save();
+
+    return redirect()->back()->with('success', 'Reporte enviado correctamente.');
+}
 }
