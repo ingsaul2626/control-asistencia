@@ -3,11 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     ProfileController, AsistenciaController, EmpleadoController,
-    ReporteController, EventoController, AdminController, UserController
+    ReporteController, EventoController, AdminController, UserController,
 };
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Models\{Evento, Empleado, Asistencia};
-
+use App\Http\Controllers\BitacoraController;
 // 1. RUTA RAÍZ
 Route::get('/', function () {
     if (auth()->check()) {
@@ -72,4 +72,9 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::get('/descargar/{id}', [UserController::class, 'descargar'])->name('descargar');
 });
 
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
+    Route::get('/bitacora/export', [BitacoraController::class, 'export'])->name('bitacora.export');
+});
 require __DIR__.'/auth.php';

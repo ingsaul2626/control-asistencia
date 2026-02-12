@@ -15,6 +15,10 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
 {
+    $response = $next($request);
+    $response->headers->set('bypass-tunnel-reminder', 'true');
+    return $response;
+
     // Si el usuario es admin, déjalo pasar
     if (auth()->check() && auth()->user()->role === 'admin') {
         return $next($request);
@@ -23,4 +27,5 @@ class AdminMiddleware
     // Si no, mándalo fuera con un 403
     abort(403, 'No tienes permiso para entrar aquí.');
 }
+
 }

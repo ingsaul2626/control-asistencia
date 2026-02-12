@@ -1,132 +1,134 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Gestión de Empleados y Asistencia') }}
+        <h2 class="font-black text-2xl text-slate-800 leading-tight uppercase tracking-tighter italic">
+            {{ __('Staff') }}<span class="text-indigo-600">Directory</span>
         </h2>
     </x-slot>
 
-    <div class="py-12 bg-gray-50/50">
+    <div class="py-12 bg-slate-50/50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Encabezado de la Sección --}}
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <div>
-                    <h3 class="text-lg font-bold text-gray-700">Listado Maestro</h3>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Supervisión de ingresos y salidas del personal.
+            <div class="flex flex-col lg:flex-row justify-between items-end mb-8 gap-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="h-8 w-1 bg-indigo-600 rounded-full"></span>
+                        <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight">Listado Maestro</h3>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 max-w-md">
+                        Base de datos central de colaboradores. Gestione perfiles, cargos y supervise el estado de conexión en tiempo real.
                     </p>
                 </div>
-                <a href="{{ route('admin.empleados.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Nuevo Trabajador
-                </a>
+
+                <div class="flex items-center gap-4 w-full lg:w-auto">
+                    <a href="{{ route('admin.empleados.create') }}"
+                        class="flex-1 lg:flex-none inline-flex items-center justify-center px-6 py-3 bg-slate-900 border border-transparent rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-indigo-600 shadow-xl shadow-slate-200 transition-all hover:-translate-y-1 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        Añadir Colaborador
+                    </a>
+                </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-3xl border border-gray-100 p-2 md:p-6">
-                <table id="miTablaGenerica" class="min-w-full">
+            <div class="bg-white/80 backdrop-blur-sm shadow-2xl shadow-slate-200/60 sm:rounded-[2.5rem] border border-white p-4 md:p-8">
+                <table id="miTablaGenerica" class="w-full border-separate border-spacing-y-3">
                     <thead>
-                        <tr class="border-b border-gray-100">
-                            <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Empleado</th>
-                            <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Identificación</th>
-                            <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Cargo / Sección</th>
-                            <th class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Asistencia Hoy</th>
-                            <th class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Operaciones</th>
+                        <tr class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                            <th class="px-6 py-4 text-left">Ficha de Empleado</th>
+                            <th class="px-6 py-4 text-left">ID Documento</th>
+                            <th class="px-6 py-4 text-left">Posición y Área</th>
+                            <th class="px-6 py-4 text-center">Registro de Hoy</th>
+                            <th class="px-6 py-4 text-right">Gestión</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
-                       @foreach($empleados as $empleado)
-    @php $res = $empleado->statusAsistenciaHoy(); @endphp
+                    <tbody class="divide-y-0">
+                        @foreach($empleados as $empleado)
+                            @php $res = $empleado->statusAsistenciaHoy(); @endphp
+                            <tr class="bg-white border border-slate-50 shadow-sm rounded-2xl group transition-all hover:shadow-md hover:bg-slate-50/50">
 
-    <tr class="hover:bg-indigo-50/30 transition-all duration-200">
-        {{-- 1. Columna Empleado + Estatus --}}
-        <td class="px-6 py-4 whitespace-nowrap">
-            <div class="flex items-center">
-                <div class="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm border-2 border-white shadow-sm">
-                    {{ substr($empleado->name, 0, 1) }}
-                </div>
-                <div class="ml-4">
-                    <div class="text-sm font-bold text-gray-900 uppercase leading-none">{{ $empleado->name }}</div>
-                    <div class="mt-1.5 flex items-center">
-                        <span class="relative flex h-2 w-2 mr-2">
-                            @if($res->label === 'ACTIVO')
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $res->clase_punto }} opacity-75"></span>
-                            @endif
-                            <span class="relative inline-flex rounded-full h-2 w-2 {{ $res->clase_punto }}"></span>
-                        </span>
-                        <span class="text-[9px] {{ $res->texto }} font-black uppercase tracking-tighter">
-                            {{ $res->label }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </td>
+                                {{-- Empleado + Estatus --}}
+                                <td class="px-6 py-5 rounded-l-3xl">
+                                    <div class="flex items-center">
+                                        <div class="relative">
+                                            <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-black text-lg shadow-inner group-hover:from-indigo-500 group-hover:to-indigo-600 group-hover:text-white transition-all duration-300">
+                                                {{ substr($empleado->name, 0, 1) }}
+                                            </div>
+                                            <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white {{ $res->clase_punto }} {{ $res->label === 'ACTIVO' ? 'animate-pulse' : '' }}"></div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-black text-slate-800 uppercase tracking-tight leading-none group-hover:text-indigo-600 transition-colors">{{ $empleado->name }}</div>
+                                            <div class="mt-2 flex items-center">
+                                                <span class="text-[9px] {{ $res->texto }} font-black uppercase tracking-widest px-2 py-0.5 rounded-md {{ str_replace('text-', 'bg-', $res->texto) }}/10">
+                                                    {{ $res->label }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
 
-        {{-- 2. Identificación --}}
-        <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">
-                {{ $empleado->cedula ?? 'N/A' }}
-            </span>
-        </td>
+                                {{-- Identificación --}}
+                                <td class="px-6 py-5">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Cédula / ID</span>
+                                        <span class="text-sm font-mono font-bold text-slate-600">{{ $empleado->cedula ?? '---' }}</span>
+                                    </div>
+                                </td>
 
-        {{-- 3. Cargo / Sección --}}
-        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-600 font-medium italic">
-            {{ $empleado->cargo ?? 'Personal' }} / {{ $empleado->seccion ?? 'General' }}
-        </td>
+                                {{-- Cargo / Sección --}}
+                                <td class="px-6 py-5">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-slate-700 leading-tight">{{ $empleado->cargo ?? 'Operativo' }}</span>
+                                        <span class="text-[10px] font-black text-indigo-500/70 uppercase tracking-widest">{{ $empleado->seccion ?? 'Área General' }}</span>
+                                    </div>
+                                </td>
 
-        {{-- 4. Asistencia Hoy (Horas) --}}
-        <td class="px-6 py-4 whitespace-nowrap text-center">
-            @php
-                $asistencia = $empleado->asistencias->where('fecha', now()->toDateString())->first();
-            @endphp
-            @if($asistencia && $res->label !== 'FALTA')
-                <div class="inline-flex items-center gap-2 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-                    <span class="text-[10px] font-bold text-indigo-700">
-                        {{ $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('g:i A') : '--' }}
-                    </span>
-                    <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-indigo-400">
-                        {{ $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('g:i A') : 'En curso' }}
-                    </span>
-                </div>
-            @else
-                <span class="text-[10px] text-gray-400 font-medium italic">Sin marcaje</span>
-            @endif
-        </td>
+                                {{-- Asistencia Hoy --}}
+                                <td class="px-6 py-5 text-center">
+                                    @php
+                                        $asistencia = $empleado->asistencias->where('fecha', now()->toDateString())->first();
+                                    @endphp
+                                    @if($asistencia && $res->label !== 'FALTA')
+                                        <div class="inline-flex flex-col items-center bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[11px] font-black text-slate-700">
+                                                    {{ $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('g:i A') : '--' }}
+                                                </span>
+                                                <svg class="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                                <span class="text-[11px] font-black {{ $asistencia->hora_salida ? 'text-indigo-600' : 'text-amber-500 animate-pulse' }}">
+                                                    {{ $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('g:i A') : 'ACTIVO' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-lg italic">Sin Marcaje</span>
+                                    @endif
+                                </td>
 
-        {{-- 5. Operaciones --}}
-        <td class="px-6 py-4 whitespace-nowrap text-right">
-            <div class="flex justify-end items-center gap-1">
-                {{-- Botón de Acción Rápida (Sincronizado) --}}
-                <a href="{{ route('admin.asistencias.index') }}"
-                   class="p-2 {{ $res->texto }} hover:bg-gray-100 rounded-xl transition-all"
-                   title="{{ $res->boton }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </a>
+                                {{-- Operaciones --}}
+                                <td class="px-6 py-5 text-right rounded-r-3xl">
+                                    <div class="flex justify-end items-center gap-2">
+                                        <a href="{{ route('admin.empleados.show', $empleado->id) }}"
+                                           class="p-2.5 bg-slate-50 text-slate-400 hover:bg-indigo-600 hover:text-white rounded-xl transition-all shadow-sm"
+                                           title="Ver Perfil">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                        </a>
 
-                {{-- Botones Originales --}}
-                <a href="{{ route('admin.empleados.show', $empleado->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all" title="Ver Detalles">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                </a>
+                                        <a href="{{ route('admin.empleados.edit', $empleado->id) }}"
+                                           class="p-2.5 bg-slate-50 text-slate-400 hover:bg-amber-500 hover:text-white rounded-xl transition-all shadow-sm"
+                                           title="Editar">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                        </a>
 
-                <a href="{{ route('admin.empleados.edit', $empleado->id) }}" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" title="Editar">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                </a>
-
-                <form action="{{ route('admin.empleados.destroy', $empleado->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar empleado?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                </form>
-            </div>
-        </td>
-    </tr>
-@endforeach
+                                        <form action="{{ route('admin.empleados.destroy', $empleado->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar registro de forma permanente?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="p-2.5 bg-slate-50 text-slate-400 hover:bg-rose-500 hover:text-white rounded-xl transition-all shadow-sm">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -135,18 +137,31 @@
 
     <script>
     $(document).ready(function() {
-        $('#miTablaGenerica').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json",
-                "search": "FILTRAR TRABAJADOR:",
-            },
-            "responsive": true,
-            "dom": '<"flex flex-col md:flex-row justify-between items-center mb-6 gap-4"f>rt<"flex flex-col md:flex-row justify-between items-center mt-6 gap-4"ip>',
-            "pageLength": 10
-        });
+        if (!$.fn.DataTable.isDataTable('#miTablaGenerica')) {
+            $('#miTablaGenerica').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json",
+                    "search": "",
+                    "searchPlaceholder": "BUSCAR POR NOMBRE O CÉDULA..."
+                },
+                "responsive": true,
+                "dom": '<"flex flex-col md:flex-row justify-between items-center mb-6 gap-4"f>rt<"flex justify-between items-center mt-6"ip>',
+                "pageLength": 10
+            });
 
-        $('.dataTables_filter input').addClass('ml-0 px-5 py-3 border-2 border-gray-100 rounded-2xl outline-none focus:border-indigo-500 w-full md:w-80 text-sm shadow-sm transition-all font-bold');
-        $('.dataTables_filter label').addClass('text-[10px] font-black text-gray-400 uppercase tracking-widest flex flex-col');
+            // Estilizar el input de búsqueda globalmente
+            $('.dataTables_filter input').addClass('bg-white border-slate-200 rounded-2xl text-[11px] font-black px-6 py-4 focus:ring-4 focus:ring-indigo-100 outline-none border transition-all w-full md:w-96 shadow-sm uppercase tracking-widest');
+        }
     });
     </script>
+
+    <style>
+        /* Ajustes para DataTables */
+        .dataTables_info { @apply text-[10px] font-black text-slate-400 uppercase tracking-widest; }
+        .dataTables_paginate .paginate_button { @apply !rounded-xl !border-none !font-black !text-[10px] !tracking-widest !px-4 !py-2 !uppercase; }
+        .dataTables_paginate .paginate_button.current { @apply !bg-indigo-600 !text-white !shadow-lg !shadow-indigo-100; }
+
+        /* Efecto de separación de filas */
+        table.dataTable.border-separate { border-spacing: 0 12px !important; }
+    </style>
 </x-app-layout>

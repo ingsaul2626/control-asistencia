@@ -43,12 +43,16 @@ class Asistencia extends Model
      * Accesor para calcular horas trabajadas.
      */
     public function getHorasTrabajadasAttribute()
-    {
-        if ($this->hora_entrada && $this->hora_salida) {
-            $entrada = \Carbon\Carbon::parse($this->hora_entrada);
-            $salida = \Carbon\Carbon::parse($this->hora_salida);
-            return $entrada->diffInHours($salida) . 'h ' . ($entrada->diffInMinutes($salida) % 60) . 'm';
-        }
-        return 'En curso';
+{
+    if ($this->hora_entrada && $this->hora_salida) {
+        $entrada = \Carbon\Carbon::parse($this->hora_entrada);
+        $salida = \Carbon\Carbon::parse($this->hora_salida);
+        // Retorna la diferencia en horas con dos decimales
+        return round($entrada->diffInMinutes($salida) / 60, 2);
     }
+    return 0;
+}
+
+
+
 }

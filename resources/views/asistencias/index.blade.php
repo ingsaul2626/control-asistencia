@@ -1,163 +1,204 @@
 <x-app-layout>
-@if(session('success'))
-    <div class="max-w-7xl mx-auto mb-4 px-4 sm:px-6 lg:px-8">
-        <div class="bg-emerald-100 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded-xl shadow-sm italic text-sm">
-            {{ session('success') }}
+    @if(session('success'))
+        <div id="alert-success" class="fixed top-20 right-5 z-50 max-w-sm animate-fade-in-down">
+            <div class="bg-emerald-500 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span class="text-sm font-bold">{{ session('success') }}</span>
+            </div>
         </div>
-    </div>
-@endif
-    <div class="py-12 bg-gray-50/50">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <script>setTimeout(() => document.getElementById('alert-success')?.remove(), 4000);</script>
+    @endif
 
-            <div class="mb-6 p-4 bg-slate-900 text-emerald-400 font-mono text-[11px] rounded-2xl shadow-2xl border border-slate-700">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    <p>👤 <span class="text-slate-500">ADMIN:</span> {{ auth()->user()->name }} (ID: {{ auth()->id() }})</p>
-                    <p>⏰ <span class="text-slate-500">SERVIDOR:</span> {{ now()->toDateTimeString() }}</p>
-                    <p>📅 <span class="text-slate-500">FECHA FILTRO:</span> {{ $fecha }}</p>
-                    <p>📊 <span class="text-slate-500">REGISTROS HOY:</span> {{ $asistenciasHoy->count() }}</p>
+    <div class="py-10 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="mb-8 p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+
+                <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="flex flex-col">
+                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Operador</span>
+                        <span class="text-emerald-400 font-mono text-sm uppercase tracking-tighter">{{ auth()->user()->name }}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Sincronización</span>
+                        <span class="text-slate-300 font-mono text-sm tracking-tighter">{{ now()->format('d M, Y H:i:s') }}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Filtro Activo</span>
+                        <span class="text-indigo-400 font-mono text-sm tracking-tighter">{{ $fecha }}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Tráfico de Hoy</span>
+                        <span class="text-white font-mono text-sm">{{ $asistenciasHoy->count() }} Registros</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h2 class="text-2xl font-bold text-slate-800">Panel de Control de Asistencias</h2>
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tighter italic uppercase">Registry<span class="text-indigo-600">Core</span></h2>
+                    <p class="text-slate-500 text-sm font-medium">Gestión de tiempos y asistencias del personal.</p>
+                </div>
 
-                @php
-                    // Buscamos el registro del administrador logueado por si necesita marcar su propia salida
-                    $miRegistroHoy = $asistenciasHoy->where('user_id', auth()->id())->first();
-                @endphp
+                @php $miRegistroHoy = $asistenciasHoy->where('user_id', auth()->id())->first(); @endphp
 
                 @if($miRegistroHoy && !$miRegistroHoy->hora_salida)
                     <form action="{{ route('admin.asistencias.marcar-salida-auto') }}" method="POST">
                         @csrf
-                        <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-2xl shadow-lg transition-all transform hover:scale-105 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V7" />
-                            </svg>
-                            MARCAR MI SALIDA AHORA
+                        <button type="submit" class="group relative bg-orange-500 text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-orange-200 transition-all hover:bg-orange-600 active:scale-95 flex items-center gap-3 uppercase text-xs tracking-widest">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                            </span>
+                            Cerrar Mi Jornada
                         </button>
                     </form>
                 @endif
             </div>
 
-            <div class="bg-white shadow-xl sm:rounded-[2rem] overflow-hidden border border-gray-100">
-    <div class="p-6">
-        <table id="miTablaGenerica" class="display w-full" style="width:100%">
-            <thead class="bg-slate-50">
-                <tr>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Trabajador</th>
-                    <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Entrada</th>
-                    <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Salida</th>
-                    <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Observaciones</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @foreach($empleados as $empleado)
-    @php
-        $res = $empleado->statusAsistenciaHoy();
-        $asistencia = $empleado->asistencias->where('fecha', now()->toDateString())->first();
-        // Generamos un ID único para los campos de esta fila para poder leerlos con JS si fuera necesario
-        $rowId = "emp_" . $empleado->id;
-    @endphp
-    <tr class="hover:bg-gray-50 transition-colors" id="{{ $rowId }}">
-        {{-- 1. Trabajador --}}
-        <td class="px-6 py-4">
-            <div class="flex items-center">
-                <div class="h-2.5 w-2.5 rounded-full {{ $res->clase_punto }} mr-3 {{ $res->label === 'ACTIVO' ? 'animate-pulse' : '' }}"></div>
-                <div>
-                    <span class="text-sm font-bold text-slate-700 block">{{ $empleado->name }}</span>
-                    <span class="text-[10px] {{ $res->texto }} font-black uppercase italic tracking-tighter">STATUS: {{ $res->label }}</span>
-                </div>
+            <div class="bg-white shadow-2xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden border border-slate-100 p-4 sm:p-8">
+                <table id="miTablaGenerica" class="w-full border-separate border-spacing-y-3">
+                    <thead>
+                        <tr class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                            <th class="px-6 py-4 text-left">Colaborador</th>
+                            <th class="px-6 py-4 text-center">Entrada</th>
+                            <th class="px-6 py-4 text-center">Salida</th>
+                            <th class="px-6 py-4 text-center">Notas de Campo</th>
+                            <th class="px-6 py-4 text-right">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($empleados as $empleado)
+                            @php
+                                $res = $empleado->statusAsistenciaHoy();
+                                $asistencia = $empleado->asistencias->where('fecha', now()->toDateString())->first();
+                            @endphp
+                            <tr class="bg-white border border-slate-50 shadow-sm rounded-2xl group transition-all hover:shadow-md hover:bg-slate-50/50">
+                                {{-- Trabajador --}}
+                                <td class="px-6 py-5 rounded-l-3xl">
+                                    <div class="flex items-center">
+                                        <div class="relative">
+                                            <div class="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
+                                                {{ substr($empleado->name, 0, 1) }}
+                                            </div>
+                                            <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white {{ $res->clase_punto }} {{ $res->label === 'ACTIVO' ? 'animate-pulse' : '' }}"></div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <span class="text-sm font-black text-slate-700 block tracking-tight">{{ $empleado->name }}</span>
+                                            <span class="text-[9px] font-bold py-0.5 px-2 rounded-md bg-slate-100 text-slate-500 tracking-tighter uppercase">Status: {{ $res->label }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <form action="{{ route('admin.asistencias.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="user_id" value="{{ $empleado->id }}">
+
+                                    {{-- Entrada --}}
+                                    <td class="px-6 py-5 text-center">
+                                        <input type="time" name="hora_entrada"
+                                            value="{{ $asistencia && $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('H:i') : '' }}"
+                                            class="text-sm font-black text-slate-600 bg-slate-100/50 border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all p-2 w-28 text-center">
+                                    </td>
+
+                                    {{-- Salida --}}
+                                    <td class="px-6 py-5 text-center">
+                                        <input type="time" name="hora_salida"
+                                            value="{{ $asistencia && $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('H:i') : '' }}"
+                                            class="text-sm font-black text-indigo-600 bg-indigo-50/50 border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all p-2 w-28 text-center">
+                                    </td>
+
+                                    {{-- Observaciones --}}
+                                    <td class="px-6 py-5 text-center">
+                                        <input type="text" name="observaciones"
+                                            value="{{ $asistencia->observaciones ?? '' }}"
+                                            placeholder="Añadir reporte..."
+                                            class="text-xs font-medium text-slate-500 bg-slate-100/50 border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-100 w-full p-2 min-w-[150px] transition-all">
+                                    </td>
+
+                                    {{-- Acciones --}}
+                                    <td class="px-6 py-5 text-right rounded-r-3xl">
+                                        <div class="flex justify-end items-center gap-2">
+                                            <button type="submit" class="{{ $res->clase_boton }} text-white text-[10px] font-black px-5 py-2.5 rounded-xl shadow-lg transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest">
+                                                {{ $res->boton }}
+                                            </button>
+                                </form>
+
+                                            @if($res->label !== 'FALTA')
+                                                <form action="{{ route('admin.asistencias.marcar-falta') }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <input type="hidden" name="user_id" value="{{ $empleado->id }}">
+                                                    <button type="button" onclick="confirmarFaltaCustom(this)"
+                                                            class="bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white p-2.5 rounded-xl transition-all shadow-sm">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-        </td>
-
-        {{-- Formulario unificado para capturar los inputs de tiempo y texto --}}
-        {{-- Nota: Usamos el mismo formulario para que el botón "Asignar/Actualizar" envíe todo --}}
-        <form action="{{ route('admin.asistencias.store') }}" method="POST" id="form-update-{{ $empleado->id }}">
-            @csrf
-            <input type="hidden" name="user_id" value="{{ $empleado->id }}">
-
-            {{-- 2. Selección de Hora de Entrada --}}
-            <td class="px-6 py-4 text-center">
-                <input type="time" name="hora_entrada"
-                    value="{{ $asistencia && $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('H:i') : '' }}"
-                    class="text-xs font-bold text-slate-600 bg-slate-50 border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-1 w-28 text-center">
-            </td>
-
-            {{-- 3. Selección de Hora de Salida --}}
-            <td class="px-6 py-4 text-center">
-                <input type="time" name="hora_salida"
-                    value="{{ $asistencia && $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('H:i') : '' }}"
-                    class="text-xs font-bold text-indigo-600 bg-indigo-50 border-indigo-100 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-1 w-28 text-center">
-            </td>
-
-            {{-- 4. Texto de Observaciones --}}
-            <td class="px-6 py-4 text-center">
-                <input type="text" name="observaciones"
-                    value="{{ $asistencia->observaciones ?? '' }}"
-                    placeholder="Agregar nota..."
-                    class="text-[10px] text-slate-500 border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 w-full p-1 min-w-[120px]">
-            </td>
-
-            {{-- 5. Botón Independiente: ASIGNAR / ACTUALIZAR --}}
-            <td class="px-6 py-4 text-right">
-                <div class="flex justify-end items-center gap-2">
-                    <button type="submit" class="{{ $res->clase_boton }} text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 uppercase">
-                        {{ $res->boton }}
-                    </button>
-        </form> {{-- Cerramos el formulario de actualización aquí --}}
-
-                    {{-- 6. Botón Independiente: FALTA (Formulario aparte) --}}
-                    @if($res->label !== 'FALTA')
-                        <form action="{{ route('admin.asistencias.marcar-falta') }}" method="POST" class="inline">
-                            @csrf
-                            <input type="hidden" name="user_id" value="{{ $empleado->id }}">
-                            <button type="submit" onclick="return confirm('¿Marcar inasistencia para {{ $empleado->name }}?')"
-                                    class="bg-red-100 text-red-600 hover:bg-red-600 hover:text-white px-3 py-2 rounded-xl text-[10px] font-black transition-all uppercase">
-                                FALTA
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            </td>
-    </tr>
-@endforeach
-            </tbody>
-        </table>
+        </div>
     </div>
-</div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
             if (!$.fn.DataTable.isDataTable('#miTablaGenerica')) {
                 $('#miTablaGenerica').DataTable({
-                    "language": { "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json" },
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json",
+                        "search": "",
+                        "searchPlaceholder": "Buscar colaborador..."
+                    },
                     "responsive": true,
                     "pageLength": 10,
-                    "ordering": false // Desactivamos orden para no romper los formularios
+                    "ordering": false,
+                    "dom": '<"flex flex-col md:flex-row justify-between items-center mb-6"f>rt<"flex justify-between items-center mt-6"ip>',
                 });
+
+                // Estilizar buscador
+                $('.dataTables_filter input').addClass('bg-white border-slate-200 rounded-2xl text-sm px-6 py-3 focus:ring-4 focus:ring-indigo-100 outline-none border transition-all w-full md:w-80 shadow-sm');
             }
         });
 
-        function confirmarFalta(boton) {
+        function confirmarFaltaCustom(boton) {
+            const form = boton.closest('form');
             Swal.fire({
-                title: '¿Confirmar Inasistencia?',
-                text: "Se registrará al empleado como AUSENTE.",
-                icon: 'warning',
+                title: '¿Reportar Inasistencia?',
+                text: "El registro se marcará como FALTA para la jornada de hoy.",
+                icon: 'error',
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Sí, es falta',
-                cancelButtonText: 'Cancelar',
-                customClass: { popup: 'rounded-[2rem]' }
+                confirmButtonColor: '#f43f5e',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'SÍ, MARCAR FALTA',
+                cancelButtonText: 'CANCELAR',
+                customClass: {
+                    popup: 'rounded-[2.5rem] border-none shadow-2xl',
+                    confirmButton: 'rounded-xl font-black uppercase text-xs tracking-widest px-6 py-3',
+                    cancelButton: 'rounded-xl font-black uppercase text-xs tracking-widest px-6 py-3'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const form = boton.closest('form');
-                    form.querySelector('input[name="es_falta"]').value = "1";
-                    form.querySelector('input[name="observaciones"]').value = "FALTA";
                     form.submit();
                 }
             });
         }
     </script>
-</x-app-layout>
 
+    <style>
+        .animate-fade-in-down { animation: fadeInDown 0.5s ease-out; }
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .dataTables_paginate .paginate_button { @apply !rounded-xl !border-none !font-bold !text-xs !tracking-widest !px-4 !py-2; }
+        .dataTables_paginate .paginate_button.current { @apply !bg-indigo-600 !text-white !shadow-lg !shadow-indigo-200; }
+    </style>
+</x-app-layout>

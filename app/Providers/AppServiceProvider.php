@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-
+use App\Observers\TrabajadorObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,7 +18,11 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {
-        //
+{
+    // Si la URL del túnel está activa, obligamos a Laravel a usar HTTPS en todos los enlaces
+    if (str_contains(config('app.url'), 'devtunnels.ms')) {
+        \Illuminate\Support\Facades\URL::forceScheme('https');
+        Trabajador::observe(TrabajadorObserver::class);
     }
+}
 }

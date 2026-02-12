@@ -9,7 +9,34 @@ class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
+     *
+     *
+     *
      */
+    public function dashboard()
+{
+    $userId = auth()->id();
+    $mesActual = now()->month;
+
+    // 1. Eventos asignados al usuario
+    $misEventos = Evento::where('user_id', $userId)->get();
+
+    // 2. Historial de asistencias del mes
+    $historialAsistencias = Asistencia::where('user_id', $userId)
+        ->whereMonth('fecha', $mesActual)
+        ->orderBy('fecha', 'desc')
+        ->get();
+
+    // 3. Cálculo de estadísticas rápidas
+    $totalHorasMes = $historialAsistencias->sum(function($asistencia) {
+        return $asistencia->horas_trabajadas;
+    });
+
+    $diasAsistidos = $historialAsistencias->where('status', 'finalizado')->count();
+
+    return view('dashboard', compact('misEventos', 'historialAsistencias', 'totalHorasMes', 'diasAsistidos'));
+}
   public function myProjects()
     {
         // 1. Obtenemos el ID del usuario que está logueado actualmente

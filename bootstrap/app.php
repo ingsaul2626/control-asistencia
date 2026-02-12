@@ -11,10 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+
         // Registramos el alias 'role' para que tus rutas funcionen
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'superadmin' => \App\Http\Middleware\CheckSuperAdmin::class,
+            $middleware->trustProxies(at: '*'),
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
