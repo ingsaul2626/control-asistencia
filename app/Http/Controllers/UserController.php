@@ -94,20 +94,25 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+   public function update(Request $request, $id)
+{
+    // Impedir que se le quite el rol de admin o se desactive
+    if ($id == 1 && $request->role !== 'admin') {
+        return redirect()->back()->with('error', 'No puedes cambiar el rol del administrador raíz.');
     }
+
+    $user->update($request->all());
+    return redirect()->back()->with('success', 'Usuario actualizado correctamente.');
+}
 
     /**
      * Remove the specified resource from storage.
      */
    public function destroy($id)
 {
-    // Buscamos el proyecto y nos aseguramos de que pertenezca al usuario logueado
-    $proyecto = Evento::where('id', $id)
-                      ->where('user_id', auth()->id())
-                      ->firstOrFail();
+    if ($id == 1) {
+        return redirect()->back()->with('error', 'El administrador principal no puede ser eliminado.');
+    }
 
     $proyecto->delete();
 

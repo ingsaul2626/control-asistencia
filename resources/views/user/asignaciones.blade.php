@@ -41,13 +41,13 @@
                 </div>
             </div>
 
-            {{-- MÉTRICAS (MÁS PEQUEÑAS) --}}
+            {{-- MÉTRICAS --}}
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 @php
                     $metrics = [
-                        ['label' => 'Horas Mes', 'val' => $totalHorasMes . 'h', 'icon' => 'fa-stopwatch', 'col' => 'indigo'],
-                        ['label' => 'Días', 'val' => $diasAsistidos, 'icon' => 'fa-calendar-check', 'col' => 'emerald'],
-                        ['label' => 'Proyectos', 'val' => $misEventos->count(), 'icon' => 'fa-tasks', 'col' => 'orange'],
+                        ['label' => 'Horas del Mes', 'val' => $totalHorasMes . 'h', 'icon' => 'fa-stopwatch', 'col' => 'indigo'],
+                        ['label' => 'Días Laborados', 'val' => $diasAsistidos, 'icon' => 'fa-calendar-check', 'col' => 'emerald'],
+                        ['label' => 'Proyectos', 'val' => count($misEventos), 'icon' => 'fa-tasks', 'col' => 'orange'],
                         ['label' => 'Puntualidad', 'val' => '100%', 'icon' => 'fa-chart-line', 'col' => 'blue'],
                     ];
                 @endphp
@@ -66,18 +66,18 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {{-- COLUMNA PROYECTOS (PUNTO MEDIO) --}}
+                {{-- COLUMNA PROYECTOS --}}
                 <div class="lg:col-span-8 space-y-6">
                     <div class="flex items-center gap-2 mb-2">
                         <div class="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-                        <h2 class="text-2xl font-black text-slate-800 tracking-tight italic">Proyectos</h2>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight italic">Mis Proyectos</h2>
                     </div>
 
                     @forelse($misEventos as $proyecto)
                         <div class="group bg-white rounded-[2.5rem] border border-slate-100 hover:border-indigo-100 transition-all shadow-sm overflow-hidden">
                             <div class="flex flex-col md:flex-row">
 
-                                {{-- Imagen ajustada --}}
+                                {{-- Imagen --}}
                                 <div class="md:w-56 flex-shrink-0 relative overflow-hidden bg-slate-50 p-4">
                                     @if($proyecto->imagen)
                                         <img src="{{ asset('storage/' . $proyecto->imagen) }}" class="w-full h-48 md:h-full object-cover rounded-3xl shadow-sm">
@@ -88,7 +88,7 @@
                                     @endif
                                 </div>
 
-                                {{-- Contenido equilibrado --}}
+                                {{-- Contenido --}}
                                 <div class="flex-1 p-6 md:p-8">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -97,10 +97,9 @@
                                     <h3 class="text-2xl font-black text-slate-800 italic mb-4 leading-tight">{{ $proyecto->titulo }}</h3>
 
                                     <div class="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 mb-6 text-sm text-slate-600 italic">
-                                        {{ Str::limit($proyecto->descripcion ?? 'Sin especificaciones.', 120) }}
+                                        {{ Str::limit($proyecto->descripcion ?? 'Sin especificaciones detalladas.', 120) }}
                                     </div>
 
-                                    {{-- PDF estilo botón moderno pero discreto --}}
                                     @if($proyecto->archivo)
                                     <div class="mb-6">
                                         <a href="{{ asset('storage/' . $proyecto->archivo) }}" download
@@ -108,18 +107,17 @@
                                             <div class="h-9 w-9 bg-white text-rose-500 rounded-lg flex items-center justify-center shadow-sm">
                                                 <i class="fas fa-file-pdf text-sm"></i>
                                             </div>
-                                            <span class="text-xs font-black text-rose-800 group-hover/pdf:text-white uppercase tracking-tighter">Descargar PDF</span>
+                                            <span class="text-xs font-black text-rose-800 group-hover/pdf:text-white uppercase tracking-tighter">Descargar Guía PDF</span>
                                         </a>
                                     </div>
                                     @endif
 
-                                    {{-- Reporte compacto --}}
                                     <form action="{{ route('user.reportar', $proyecto->id) }}" method="POST">
                                         @csrf
                                         <div class="relative">
                                             <textarea name="reporte_trabajador" rows="1"
                                                 class="w-full rounded-xl border-slate-100 bg-slate-50 text-xs focus:ring-indigo-500 focus:border-indigo-500 pr-28 transition-all py-3 px-4 shadow-inner italic"
-                                                placeholder="Resumen del avance...">{{ $proyecto->reporte_trabajador }}</textarea>
+                                                placeholder="Escribe un resumen de tu avance...">{{ $proyecto->reporte_trabajador }}</textarea>
                                             <button type="submit" class="absolute right-1.5 top-1.5 bottom-1.5 bg-slate-900 text-white text-[9px] font-black px-4 rounded-lg uppercase tracking-widest hover:bg-indigo-600 transition-all">
                                                 Actualizar
                                             </button>
@@ -130,12 +128,12 @@
                         </div>
                     @empty
                         <div class="py-12 text-center bg-white rounded-[2rem] border border-dashed border-slate-200">
-                             <p class="text-slate-400 font-black uppercase text-[10px] tracking-widest italic">No hay proyectos activos</p>
+                             <p class="text-slate-400 font-black uppercase text-[10px] tracking-widest italic">No tienes proyectos asignados actualmente</p>
                         </div>
                     @endforelse
                 </div>
 
-                {{-- BITÁCORA (LATERAL COMPACTO) --}}
+                {{-- BITÁCORA LATERAL --}}
                 <div class="lg:col-span-4">
                     <div class="flex items-center gap-2 mb-4">
                         <div class="w-1.5 h-6 bg-slate-800 rounded-full"></div>
@@ -144,7 +142,7 @@
 
                     <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden h-[600px] flex flex-col">
                         <div class="p-5 bg-slate-50/50 border-b border-slate-100">
-                            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Historial</h3>
+                            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Historial de Asistencia</h3>
                         </div>
                         <div class="overflow-y-auto flex-1 p-4 space-y-3 custom-scrollbar">
                             @foreach($historialAsistencias as $registro)
@@ -152,7 +150,7 @@
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-[10px] font-black text-slate-800 italic">{{ \Carbon\Carbon::parse($registro->fecha)->translatedFormat('d M, Y') }}</span>
                                         <span class="text-[8px] font-black px-2 py-0.5 {{ $registro->status == 'finalizado' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600' }} rounded-md uppercase">
-                                            {{ $registro->status }}
+                                            {{ $registro->status == 'finalizado' ? 'Completado' : $registro->status }}
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-3 text-slate-500 text-[10px] font-bold">

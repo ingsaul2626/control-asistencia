@@ -23,6 +23,8 @@ class User extends Authenticatable
         'role',            // 'admin' o 'user'
         'tipo_trabajador', // ej: 'Obrero', 'Administrativo'
         'seccion',         // ej: 'Mantenimiento', 'Sistemas'
+        'security_question', // Campo para la pregunta
+        'security_answer',   // Campo para la respuesta
     ];
 
     /**

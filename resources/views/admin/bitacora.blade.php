@@ -12,11 +12,37 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            {{-- SECCIÓN DE FILTROS --}}
+            <div class="bg-white p-4 mb-6 rounded-lg shadow-sm border border-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Buscar por Usuario</label>
+                        <input type="text" id="filterUsuario" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Nombre del usuario...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Filtrar por Fecha</label>
+                        <input type="date" id="filterFecha" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Acción (Sema)</label>
+                        <select id="filterAccion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            <option value="">Todas las acciones</option>
+                            <option value="Creación">Creación</option>
+                            <option value="Edición">Edición</option>
+                            <option value="Eliminación">Eliminación</option>
+                            <option value="Inicio de sesión">Inicio de sesión</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button id="resetFilters" class="text-sm text-gray-500 hover:text-red-600 font-medium">Limpiar Filtros</button>
+                </div>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-
                     <div class="overflow-x-auto">
-                        <table class="min-w-full table-auto border-collapse">
+                        <table id="tablaBitacora" class="min-w-full table-auto border-collapse">
                             <thead>
                                 <tr class="bg-[#f6bb54] text-white text-sm">
                                     <th class="px-4 py-3 text-left rounded-tl-lg">Usuario</th>
@@ -53,21 +79,64 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-8 text-center text-gray-500 italic">
-                                            No se han registrado movimientos todavía.
-                                        </td>
-                                    </tr>
+                                    {{-- ... --}}
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
-
-                    <div class="mt-6">
-                        {{ $logs->links() }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- SCRIPTS --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        var table = $('#tablaBitacora').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+            },
+            "dom": 'rtip', // Ocultamos el buscador por defecto para usar nuestros filtros
+            "pageLength": 15,
+            "order": [[4, "desc"]] // Ordenar por fecha por defecto
+        });
+
+        // Filtro por Usuario (Columna 0)
+        $('#filterUsuario').on('keyup', function() {
+            table.column(0).search(this.value).draw();
+        });
+
+        // Filtro por Acción/Sema (Columna 1)
+        $('#filterAccion').on('change', function() {
+            table.column(1).search(this.value).draw();
+        });
+
+        // Filtro por Fecha (Columna 4)
+        $('#filterFecha').on('change', function() {
+            // Convertimos la fecha YYYY-MM-DD a DD/MM/YYYY que es como está en la tabla
+            if(this.value) {
+                var date = new Date(this.value);
+                var day = ("0" + (date.getDate() + 1)).slice(-2);
+                var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                var year = date.getFullYear();
+                var formattedDate = day + "/" + month + "/" + year;
+                table.column(4).search(formattedDate).draw();
+            } else {
+                table.column(4).search('').draw();
+            }
+        });
+
+        // Limpiar Filtros
+        $('#resetFilters').on('click', function() {
+            $('#filterUsuario').val('');
+            $('#filterFecha').val('');
+            $('#filterAccion').val('');
+            table.search('').columns().search('').draw();
+        });
+    });
+    </script>
 </x-app-layout>
