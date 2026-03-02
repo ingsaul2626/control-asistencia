@@ -57,97 +57,121 @@
                     </a>
                 @endif
 
-                {{-- CAMPANA CON DESPLEGABLE DINÁMICO --}}
-                <div class="relative" @click.away="notificationsOpen = false">
-                    @php
-                        $is_admin = auth()->user()->role === 'admin';
-                        $notifs = collect();
-                        $count = 0;
+               {{-- CAMPANA CON DESPLEGABLE DINÁMICO --}}
+<div class="relative" @click.away="notificationsOpen = false">
+    @php
+        $is_admin = auth()->user()->role === 'admin';
+        $notifs = collect();
+        $count = 0;
 
-                        if ($is_admin) {
-                            // Verifica si existe la tabla de Actividad para evitar errores
-                            if (\Schema::hasTable('actividads')) {
-                                $notifs = \App\Models\Actividad::with('user')->latest()->take(5)->get();
-                                $count = $notifs->count();
-                            }
-                        } else {
-                            // Verifica si existe la tabla de notificaciones nativa de Laravel
-                            if (\Schema::hasTable('notifications')) {
-                                $notifs = auth()->user()->unreadNotifications()->take(5)->get();
-                                $count = auth()->user()->unreadNotifications()->count();
-                            }
-                        }
-                    @endphp
+        if (\Schema::hasTable('actividads')) {
+            if ($is_admin) {
+                // Admin ve todo
+                $notifs = \App\Models\Actividad::with('user')->latest()->take(5)->get();
+                $count = \App\Models\Actividad::where('leido', false)->count();
+            } else {
+                // Usuario ve sus últimas 5 (leídas o no) para no ver el panel vacío
+                $notifs = \App\Models\Actividad::where('user_id', auth()->id())
+                    ->latest()
+                    ->take(5)
+                    ->get();
+                // Pero solo contamos las no leídas para el círculo rojo
+                $count = \App\Models\Actividad::where('user_id', auth()->id())
+                    ->where('leido', false)
+                    ->count();
+            }
+        }
+    @endphp
 
-                    <button @click="notificationsOpen = !notificationsOpen" class="relative inline-flex items-center p-2.5 bg-slate-50 border border-slate-100 text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all duration-200 group">
-                        <svg class="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
+    {{-- Botón de Campana --}}
+    <button @click="notificationsOpen = !notificationsOpen" class="relative inline-flex items-center p-2.5 bg-slate-50 border border-slate-100 text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-2xl transition-all duration-200 group">
+        <svg class="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+        </svg>
 
-                        @if($count > 0)
-                            <span class="absolute -top-1 -right-1 flex h-5 w-5">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span class="relative inline-flex items-center justify-center rounded-full h-5 w-5 bg-rose-500 text-[9px] font-black text-white">
-                                    {{ $count }}
-                                </span>
-                            </span>
-                        @endif
+        @if($count > 0)
+            <span class="absolute -top-1 -right-1 flex h-5 w-5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span class="relative inline-flex items-center justify-center rounded-full h-5 w-5 bg-rose-500 text-[9px] font-black text-white">
+                    {{ $count > 9 ? '+9' : $count }}
+                </span>
+            </span>
+        @endif
+    </button>
+
+    {{-- Panel Desplegable --}}
+    <div x-show="notificationsOpen"
+         x-transition ... {{-- Tus transiciones se mantienen igual --}}
+         class="absolute right-0 mt-2 w-80 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 overflow-hidden"
+         style="display: none;">
+
+        <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                {{ $is_admin ? 'Actividad Reciente' : 'Mis Notificaciones' }}
+            </h3>
+            @if(!$is_admin && $count > 0)
+                <form action="{{ route('notifications.markRead') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="text-[9px] bg-white px-2 py-1 rounded-lg border border-slate-200 text-indigo-600 font-black uppercase hover:bg-indigo-50 transition-colors">
+                        Limpiar
                     </button>
+                </form>
+            @endif
+        </div>
 
-                    {{-- Panel Desplegable --}}
-                    <div x-show="notificationsOpen"
-                         x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 scale-95"
-                         x-transition:enter-end="opacity-100 scale-100"
-                         x-transition:leave="transition ease-in duration-75"
-                         x-transition:leave-start="opacity-100 scale-100"
-                         x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-80 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 overflow-hidden"
-                         style="display: none;">
+        <div class="max-h-96 overflow-y-auto">
+            @forelse($notifs as $n)
+                @php
+                    // Lógica para definir colores e iconos según el contenido
+                    $tipo = strtolower($n->titulo ?? $n->accion);
+                    $color = 'bg-slate-100 text-slate-600';
+                    $icon = '<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'; // Default Info
 
-                        <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50">
-                            <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                {{ $is_admin ? 'Actividad Reciente' : 'Mis Notificaciones' }}
-                            </h3>
+                    if (str_contains($tipo, 'proyecto') || str_contains($tipo, 'asign')) {
+                        $color = 'bg-indigo-100 text-indigo-600';
+                        $icon = '<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />';
+                    } elseif (str_contains($tipo, 'asistencia') || str_contains($tipo, 'entrada')) {
+                        $color = 'bg-emerald-100 text-emerald-600';
+                        $icon = '<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
+                    } elseif (str_contains($tipo, 'falta') || str_contains($tipo, 'error')) {
+                        $color = 'bg-rose-100 text-rose-600';
+                        $icon = '<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />';
+                    }
+                @endphp
+
+                <div class="px-5 py-4 border-b border-slate-50 {{ !$n->leido ? 'bg-indigo-50/20' : '' }} hover:bg-slate-50 transition-colors">
+                    <div class="flex items-start gap-3">
+                        <div class="h-8 w-8 rounded-full {{ $color }} flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {!! $icon !!}
+                            </svg>
                         </div>
-
-                        <div class="max-h-96 overflow-y-auto">
-                            @forelse($notifs as $n)
-                                <div class="px-5 py-4 border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                                    <div class="flex items-start gap-3">
-                                        <div class="h-8 w-8 rounded-full {{ $is_admin ? 'bg-indigo-100 text-indigo-600' : 'bg-rose-100 text-rose-600' }} flex items-center justify-center text-[10px] font-bold shrink-0">
-                                            @if($is_admin)
-                                                {{ substr($n->user->name ?? 'S', 0, 1) }}
-                                            @else
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
-                                            @endif
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-xs text-slate-600 leading-snug">
-                                                @if($is_admin)
-                                                    <span class="font-bold text-slate-900">{{ $n->user->name ?? 'Sistema' }}</span> {{ $n->accion }} en {{ strtolower($n->modelo) }}
-                                                @else
-                                                    {{ $n->data['mensaje'] ?? 'Nueva actualización' }}
-                                                @endif
-                                            </p>
-                                            <p class="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-tight">
-                                                {{ $n->created_at->diffForHumans() }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="px-5 py-8 text-center text-xs text-slate-400 font-bold">
-                                    No hay novedades por ahora
-                                </div>
-                            @endforelse
+                        <div class="flex-1">
+                            <p class="text-xs {{ !$n->leido ? 'font-bold text-slate-900' : 'text-slate-600' }} leading-snug">
+                                @if($is_admin)
+                                    <span class="font-bold text-indigo-600">{{ $n->user->name ?? 'Sistema' }}</span>: {{ $n->accion ?? $n->mensaje }}
+                                @else
+                                    {{ $n->titulo }}: {{ $n->mensaje }}
+                                @endif
+                            </p>
+                            <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold">
+                                {{ $n->created_at->diffForHumans() }}
+                            </p>
                         </div>
-
-                        <a href="{{ $is_admin ? url('/bitacora') : route('user.asignaciones') }}" class="block py-3 text-center text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors">
-                            {{ $is_admin ? 'Ver toda la bitácora' : 'Ver todas mis asignaciones' }}
-                        </a>
                     </div>
                 </div>
+            @empty
+                <div class="px-5 py-8 text-center text-xs text-slate-400 font-bold">
+                    No hay novedades por ahora
+                </div>
+            @endforelse
+        </div>
+
+        <a href="{{ $is_admin ? url('/bitacora') : route('user.asignaciones') }}" class="block py-3 text-center text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors">
+            Ver Historial Completo
+        </a>
+    </div>
+</div>
 
                 {{-- Dropdown de Perfil --}}
                 <x-dropdown align="right" width="56">

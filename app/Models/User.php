@@ -162,4 +162,10 @@ class User extends Authenticatable
     public function isSuperAdmin() {
     return $this->role === 'super_admin';
 }
+
+// App\Models\User.php
+public function actividades()
+{
+    return $this->hasMany(Actividad::class);
+}
 }

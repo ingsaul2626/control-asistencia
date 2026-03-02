@@ -7,7 +7,7 @@ use App\Http\Controllers\{
     BitacoraController, NotificacionController
 };
 use App\Http\Controllers\Admin\UsuarioController;
-use App\Models\{Evento, Empleado, Asistencia}; // Importación de modelos
+use App\Models\{Evento, Empleado, Asistencia};
 
 // 1. RUTA RAÍZ
 Route::get('/', function () {
@@ -34,11 +34,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/asistencias/salida', [AsistenciaController::class, 'marcarSalidaUsuario'])->name('usuario.asistencias.salida');
     Route::post('/asistencias/marcar-auto', [AsistenciaController::class, 'marcarSalidaAuto'])->name('asistencias.marcar-salida-auto');
 
-    // Bitácora y Notificaciones
-
+    // Bitácora
     Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
     Route::get('/bitacora/export', [BitacoraController::class, 'export'])->name('bitacora.export');
-    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+
+    // --- SECCIÓN DE NOTIFICACIONES (Sincronizada con NotificacionController) ---
+    Route::prefix('notificaciones')->group(function () {
+        // Vista para Admin (Bitácora/General)
+        Route::get('/todas', [NotificacionController::class, 'index'])->name('notificaciones.index');
+
+        // Vista para Usuario (Sus asignaciones)
+        Route::get('/mis-notificaciones', [NotificacionController::class, 'misNotificaciones'])->name('user.notificaciones');
+
+        // Acción: Marcar TODAS como leídas (Botón Limpiar del Navbar)
+        Route::post('/marcar-leidas', [NotificacionController::class, 'marcarComoLeidas'])->name('notifications.markRead');
+
+        // Acción: Marcar una específica (Opcional)
+        Route::post('/{id}/leer', [NotificacionController::class, 'marcarUnaLeida'])->name('notifications.readOne');
+    });
 });
 
 // 3. PANEL ADMINISTRADOR (ROL: ADMIN)
@@ -46,6 +59,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/reporte-hoy', [ReporteController::class, 'reporteHoy'])->name('reporte.hoy');
     Route::get('/panel-control', [AdminController::class, 'panelControl'])->name('admin.panelControl');
+
     Route::post('/proyectos/asignar', [AdminController::class, 'asignarProyecto'])->name('proyectos.asignar');
     Route::get('/proyectos/{id}', [EventoController::class, 'show'])->name('proyectos.show');
     Route::get('/proyectos-finalizados', [EventoController::class, 'finalizados'])->name('proyectos.finalizados');
@@ -62,20 +76,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('proyectos/reportes', [EventoController::class, 'reportes'])->name('proyectos.reportes');
     Route::resource('proyectos', EventoController::class);
     Route::patch('/empleados/{id}/finalizar', [EmpleadoController::class, 'finalizarJornada'])->name('empleados.finalizar');
-
-    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones');
 });
 
 // 4. PANEL USUARIO / TRABAJADOR (ROL: USER)
 Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
-
-    // RUTA ACTUALIZADA: Obtiene proyectos reales del usuario
+    // Proyectos reales del usuario
     Route::get('/mis-asignaciones', function () {
         $misEventos = Evento::where('user_id', auth()->id())
                             ->orderBy('created_at', 'desc')
                             ->get();
-
-        // Retornamos la vista (asegúrate que el archivo sea resources/views/user/asignaciones.blade.php)
         return view('user.asignaciones', compact('misEventos'));
     })->name('asignaciones');
 
@@ -84,5 +93,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::get('/descargar/{id}', [UserController::class, 'descargar'])->name('descargar');
 });
 
-// Otros
+// Detalles del proyecto (Acceso compartido)
+Route::get('/proyecto/{id}', [EventoController::class, 'show'])->name('eventos.show');
+
 require __DIR__.'/auth.php';

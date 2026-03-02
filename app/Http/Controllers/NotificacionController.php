@@ -2,25 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Actividad; // Asegúrate de tener el modelo Actividad
+use App\Models\Actividad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificacionController extends Controller
 {
+    /**
+     * Vista para el Administrador (Bitácora completa)
+     */
     public function index()
     {
-        // Traemos las actividades con su usuario, paginadas de 15 en 15
-        $actividades = Actividad::with('user')
-            ->latest()
-            ->paginate(15);
-        $conteo = \App\Models\Actividad::where('created_at', '>=', now()->subDay())->count();
+        $actividades = Actividad::with('user')->latest()->paginate(15);
+
+        // El admin cuenta lo global
+        $conteo = Actividad::where('leido', false)->count();
+
         return view('admin.notificaciones', compact('actividades', 'conteo'));
     }
 
-    // Opcional: Marcar actividades como leídas si añades un campo 'leido'
+    /**
+     * Vista para el Usuario (Sus proyectos asignados)
+     */
+    public function misNotificaciones()
+    {
+        $actividades = Actividad::where('user_id', Auth::id())->latest()->paginate(15);
+
+        // Saúl solo cuenta las suyas
+        $conteo = Actividad::where('user_id', Auth::id())
+            ->where('leido', false)
+            ->count();
+
+        return view('user.notificaciones', compact('actividades', 'conteo'));
+    }
+
+    /**
+     * Marca como leídas y REDIRECCIONA (Para que el botón del Navbar funcione)
+     */
     public function marcarComoLeidas()
     {
-        Actividad::where('leido', false)->update(['leido' => true]);
-        return back()->with('success', 'Notificaciones marcadas como leídas');
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            // Si el admin limpia, marca TODO como leido (opcional, según tu lógica)
+            Actividad::where('leido', false)->update(['leido' => true]);
+        } else {
+            // El usuario marca solo lo suyo
+            Actividad::where('user_id', $user->id)
+                ->where('leido', false)
+                ->update(['leido' => true]);
+        }
+
+        // CAMBIO CLAVE: Usar back() en lugar de response()->json()
+        return back()->with('success', 'Notificaciones actualizadas');
+    }
+
+    /**
+     * Marca una sola y regresa
+     */
+    public function marcarUnaLeida($id)
+    {
+        // Seguridad: Solo puede marcar sus propias notificaciones
+        $notificacion = Actividad::where('user_id', Auth::id())->findOrFail($id);
+        $notificacion->update(['leido' => true]);
+
+        return back();
     }
 }

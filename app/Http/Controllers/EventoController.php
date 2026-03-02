@@ -142,6 +142,8 @@ public function update(Request $request, $id)
 }
 public function show($id )
 {
+    $evento = \App\Models\Evento::with('user')->findOrFail($id);
+    return view('eventos.show', compact('evento'));
 
 
     if ($id === 'index') {
