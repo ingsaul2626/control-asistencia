@@ -21,7 +21,7 @@ class Bitacora extends Model
     ];
 
     /**
-     * Relación: Una bitácora pertenece a un usuario.
+     * Relación: Una bitácora pertenece a un usuarios.
      * Esto permite hacer $bitacora->user->name
      */
     public function user()

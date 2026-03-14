@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Providers;
-use App\Observers\TrabajadorObserver;
+
+use App\Models\User;
+use App\Observers\UserObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,10 +22,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
 {
     // Si la URL del túnel está activa, obligamos a Laravel a usar HTTPS en todos los enlaces
-    \App\Models\Evento::observe(\App\Observers\EventoObserver::class);
+    \App\Models\Proyecto::observe(\App\Observers\ProyectoObserver::class);
     if (str_contains(config('app.url'), 'devtunnels.ms')) {
         \Illuminate\Support\Facades\URL::forceScheme('https');
-        Trabajador::observe(TrabajadorObserver::class);
+        User::observe(UserObserver::class);
     }
 }
 }

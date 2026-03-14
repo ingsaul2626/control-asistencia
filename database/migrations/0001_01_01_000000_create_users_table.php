@@ -6,25 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('role')->default('user'); 
+            $table->string('status')->default('pending'); 
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            // --- CAMPOS PERSONALIZADOS (UNA SOLA VEZ) ---
-            $table->string('role')->default('user'); // admin o user
             $table->string('cedula')->nullable()->unique();
-            $table->string('tipo_trabajador')->nullable(); // ADM, DOC, etc.
+            $table->string('tipo_trabajador')->nullable();
             $table->string('seccion')->nullable();
             $table->string('telefono')->nullable();
-            // --------------------------------------------
+            $table->string('cargo')->nullable();
 
             $table->rememberToken();
             $table->timestamps();
@@ -46,13 +43,11 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
+        // Al borrar la tabla, se borran automáticamente todas sus columnas.
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

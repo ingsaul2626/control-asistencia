@@ -8,19 +8,20 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-   public function handle(Request $request, Closure $next, string $role)
-{
-    if (!auth()->check() || auth()->user()->role !== $role) {
-        abort(403, 'No tienes permiso para acceder a esta área.');
+    public function handle(Request $request, Closure $next, string $role): Response
+    {
+        // 1. Verificamos si el usuario está autenticado
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        // 2. Verificamos el rol
+        // Nota: Asegúrate de que 'role' sea el nombre de la columna en tu tabla users
+        if (auth()->user()->role !== $role) {
+            // En lugar de abortar, a veces es mejor redirigir al dashboard con un mensaje
+            return redirect()->route('dashboard')->with('error', 'No tienes permiso para acceder a esta área.');
+        }
+
+        return $next($request);
     }
-    return $next($request);
-}
-
-
-
 }

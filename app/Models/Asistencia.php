@@ -32,9 +32,9 @@ class Asistencia extends Model
     }
 
     /**
-     * Relación de compatibilidad (Mapea 'empleado' a 'user').
+     * Relación de compatibilidad (Mapea 'usuarios' a 'user').
      */
-    public function empleado(): BelongsTo
+    public function usuarios(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }

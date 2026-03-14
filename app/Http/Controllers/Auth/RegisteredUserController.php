@@ -29,6 +29,7 @@ class RegisteredUserController extends Controller
     {
         // 1. Validación de campos (incluyendo seguridad)
         $request->validate([
+            'cedula' => ['required', 'string', 'max:20', 'unique:users,cedula'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -36,8 +37,9 @@ class RegisteredUserController extends Controller
             'security_answer' => ['required', 'string', 'max:255'],
         ]);
 
-        // 2. Creación del usuario con los nuevos campos
-        $user = User::create([
+        // 2. Creación del usuarios con los nuevos campos
+        $users = User::create([
+            'cedula' => $request->cedula,
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -47,9 +49,9 @@ class RegisteredUserController extends Controller
         ]);
 
         // 3. Disparar evento de registro, login automático y redirección
-        event(new Registered($user));
+        event(new Registered($users));
 
-        Auth::login($user);
+        Auth::login($users);
 
         return redirect(route('dashboard', absolute: false));
     }

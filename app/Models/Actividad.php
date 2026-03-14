@@ -22,7 +22,7 @@ class Actividad extends Model
     ];
 
     /**
-     * Relación: Una actividad pertenece a un usuario.
+     * Relación: Una actividad pertenece a un usuarios.
      */
     public function user()
     {

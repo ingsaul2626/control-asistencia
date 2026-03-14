@@ -3,51 +3,35 @@
 namespace App\Observers;
 
 use App\Models\Proyecto;
+use App\Models\Actividad;
+use Illuminate\Support\Facades\Auth;
 
 class ProyectoObserver
 {
-    /**
-     * Handle the Proyecto "created" event.
-     */
-    public function created(Proyecto $proyecto): void
+    public function created(Proyecto $proyecto)
     {
-        //
+        $this->registrar('Creación', "Creó un nuevo proyecto: {$proyecto->titulo}");
     }
 
-    /**
-     * Handle the Proyecto "updated" event.
-     */
-    public function updated(Proyecto $proyecto): void
+    public function updated(Proyecto $proyecto)
     {
-        //
+        $this->registrar('Actualización', "Actualizó el proyecto: {$proyecto->titulo}");
     }
 
-    /**
-     * Handle the Proyecto "deleted" event.
-     */
-    public function deleted(Proyecto $proyecto) {
-    Bitacora::create([
-        'user_id' => auth()->id(),
-        'accion' => 'Eliminación',
-        'modelo' => 'Proyecto',
-        'detalles' => "Se eliminó el proyecto: " . $proyecto->nombre,
-        'ip_address' => request()->ip(), // Registra la IP que usaste en el túnel
-    ]);
-}
-
-    /**
-     * Handle the Proyecto "restored" event.
-     */
-    public function restored(Proyecto $proyecto): void
+    public function deleted(Proyecto $proyecto)
     {
-        //
+        $this->registrar('Eliminación', "Eliminó el proyecto: {$proyecto->titulo}");
     }
 
-    /**
-     * Handle the Proyecto "force deleted" event.
-     */
-    public function forceDeleted(Proyecto $proyecto): void
+    private function registrar($accion, $detalles)
     {
-        //
+        Actividad::create([
+            'user_id'  => Auth::id(),
+            'accion'   => $accion,
+            'tipo'     => 'proyecto',
+            'modelo'   => 'Proyecto',
+            'detalles' => $detalles,
+            'ip'       => request()->ip(),
+        ]);
     }
 }

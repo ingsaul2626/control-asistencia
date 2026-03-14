@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void {
     Schema::table('asistencias', function ($table) {
-        if (!Schema::hasColumn('asistencias', 'fecha')) $table->date('fecha')->after('empleado_id');
+        if (!Schema::hasColumn('asistencias', 'fecha')) $table->date('fecha')->after('usuarios_id');
         if (!Schema::hasColumn('asistencias', 'status')) $table->string('status')->default('presente');
         if (!Schema::hasColumn('asistencias', 'observaciones')) $table->text('observaciones')->nullable();
     });

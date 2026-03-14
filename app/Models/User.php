@@ -4,168 +4,159 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
-    /**
-     * Atributos asignables masivamente.
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'cedula',
-        'role',            // 'admin' o 'user'
-        'tipo_trabajador', // ej: 'Obrero', 'Administrativo'
-        'seccion',         // ej: 'Mantenimiento', 'Sistemas'
-        'security_question', // Campo para la pregunta
-        'security_answer',   // Campo para la respuesta
+        'name', 'email', 'password', 'cedula', 'role',
+        'tipo_trabajador', 'seccion', 'telefono', 'cargo',
+        'security_question', 'security_answer', 'status','is_approved',
     ];
 
-    /**
-     * Atributos ocultos.
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Conversión de tipos.
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_approved' => 'boolean',
+            'status' => 'string',
+            'role' => 'string',
+            'tipo_trabajador' => 'string',
+            'seccion' => 'string',
+            'cargo' => 'string',
+            'security_question' => 'string',
+            'security_answer' => 'string',
+            'remember_token' => 'string',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
+    }
+
+    // --- LÓGICA DE MOSTRAR (Agregado desde tu modelo antiguo) ---
+
+    /**
+     * Nota: Normalmente este método iría en el Controlador,
+     * pero aquí tienes la lógica adaptada para tu modelo.
+     */
+    public static function obtenerUsuarioConAsistencia($id)
+    {
+        return self::with('ultimaAsistencia')->findOrFail($id);
     }
 
     // --- SISTEMA DE ASISTENCIA ---
 
-    /**
-     * Lógica Unificada de Estatus
-     * Centraliza colores y etiquetas para Listado Maestro y Panel de Asistencias.
-     */
-   public function statusAsistenciaHoy()
+    public function statusAsistenciaHoy()
     {
         $asistencia = $this->asistencias()->whereDate('fecha', now()->toDateString())->first();
 
-        // 1. ESTADO: POR ASIGNAR (No hay registro en la DB)
         if (!$asistencia) {
             return (object) [
-                'label'       => 'POR ASIGNAR',
-                'boton'       => 'ASIGNAR HORARIO',
+                'label' => 'POR ASIGNAR', 'boton' => 'ASIGNAR HORARIO',
                 'clase_boton' => 'bg-emerald-500 hover:bg-emerald-600',
-                'texto'       => 'text-slate-400',
-                'clase_punto' => 'bg-slate-300', // Gris tenue
-                'status_db'   => 'por_asignar'
+                'texto' => 'text-slate-400', 'clase_punto' => 'bg-slate-300', 'status_db' => 'por_asignar'
             ];
         }
 
-        // 2. ESTADO: FALTA (Marcado como ausente)
         if ($asistencia->status === 'ausente') {
             return (object) [
-                'label'       => 'FALTA',
-                'boton'       => 'REVISAR',
+                'label' => 'FALTA', 'boton' => 'REVISAR',
                 'clase_boton' => 'bg-red-500 hover:bg-red-600',
-                'texto'       => 'text-red-600',
-                'clase_punto' => 'bg-red-500', // Rojo
-                'status_db'   => 'ausente'
+                'texto' => 'text-red-600', 'clase_punto' => 'bg-red-500', 'status_db' => 'ausente'
             ];
         }
 
-        // 3. ESTADO: EN PROGRESO (El usuario aceptó y está trabajando)
         if ($asistencia->status === 'en_progreso') {
             return (object) [
-                'label'       => 'EN PROGRESO',
-                'boton'       => 'ACTUALIZAR',
+                'label' => 'EN PROGRESO', 'boton' => 'ACTUALIZAR',
                 'clase_boton' => 'bg-blue-600 hover:bg-blue-700',
-                'texto'       => 'text-emerald-600',
-                'clase_punto' => 'bg-emerald-500 animate-pulse', // Verde parpadeante
-                'status_db'   => 'en_progreso'
+                'texto' => 'text-emerald-600', 'clase_punto' => 'bg-emerald-500 animate-pulse', 'status_db' => 'en_progreso'
             ];
         }
 
-        // 4. ESTADO: FINALIZADO (Ya marcó salida o el admin lo acaba de asignar)
         if ($asistencia->status === 'finalizado' || $asistencia->status === 'presente') {
-
-            // Sub-estado: Asignado pero no ha iniciado (hora_salida vacía y no está "en progreso")
             if (!$asistencia->hora_salida) {
                 return (object) [
-                    'label'       => 'ASIGNADO',
-                    'boton'       => 'ACTUALIZAR',
+                    'label' => 'ASIGNADO', 'boton' => 'ACTUALIZAR',
                     'clase_boton' => 'bg-blue-600 hover:bg-blue-700',
-                    'texto'       => 'text-blue-600',
-                    'clase_punto' => 'bg-blue-500', // Azul fijo
-                    'status_db'   => 'finalizado'
+                    'texto' => 'text-blue-600', 'clase_punto' => 'bg-blue-500', 'status_db' => 'finalizado'
                 ];
             }
-
-            // Sub-estado: Realmente finalizado (Ya tiene hora de salida)
             return (object) [
-                'label'       => 'FINALIZADO',
-                'boton'       => 'ACTUALIZAR',
+                'label' => 'FINALIZADO', 'boton' => 'ACTUALIZAR',
                 'clase_boton' => 'bg-slate-700 hover:bg-slate-800',
-                'texto'       => 'text-slate-700',
-                'clase_punto' => 'bg-emerald-700', // Verde oscuro fijo
-                'status_db'   => 'finalizado'
+                'texto' => 'text-slate-700', 'clase_punto' => 'bg-emerald-700', 'status_db' => 'finalizado'
             ];
         }
 
-        // Caso por defecto por seguridad
-        return (object) [
-            'label' => 'REVISAR',
-            'boton' => 'ACTUALIZAR',
-            'clase_boton' => 'bg-gray-500',
-            'texto' => 'text-gray-500',
-            'clase_punto' => 'bg-gray-500'
-        ];
+        return (object) ['label' => 'REVISAR', 'boton' => 'ACTUALIZAR', 'clase_boton' => 'bg-gray-500', 'texto' => 'text-gray-500', 'clase_punto' => 'bg-gray-500'];
     }
-    /**
-     * Obtiene todo el historial de asistencias del trabajador.
-     */
+
+    // --- RELACIONES ---
+
     public function asistencias(): HasMany
     {
         return $this->hasMany(Asistencia::class, 'user_id');
     }
 
-    /**
-     * Obtiene el registro de asistencia del día de hoy.
-     */
     public function asistenciaHoy(): HasOne
     {
         return $this->hasOne(Asistencia::class, 'user_id')
                     ->where('fecha', now()->toDateString());
     }
 
-    /**
-     * Alias de la última asistencia.
-     */
     public function ultimaAsistencia(): HasOne
     {
         return $this->hasOne(Asistencia::class, 'user_id')->latestOfMany('fecha');
+    }
+
+    public function actividades(): HasMany
+    {
+        return $this->hasMany(Actividad::class);
     }
 
     // --- AYUDANTES DE ROL ---
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === 'admin' || $this->role === 'super_admin';
     }
 
-    public function isSuperAdmin() {
-    return $this->role === 'super_admin';
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+
+
+    //is_approved es un booleano que indica si el usuario ha sido aprobado por un admin
+  public function getStatusAttribute()
+{
+    // Usamos is_approved porque es la columna real en tu tabla
+    return $this->is_approved ? 'APROBADO' : 'PENDIENTE';
 }
 
-// App\Models\User.php
-public function actividades()
+public function redirectPath()
 {
-    return $this->hasMany(Actividad::class);
+    $user = auth()->user();
+
+    // Verificamos las dos condiciones:
+    // 1. is_approved debe ser true
+    // 2. status debe ser 'APROBADO' (o lo que definas)
+    if ($user->is_approved && $user->status === 'APROBADO') {
+        return '/dashboard';
+    }
+
+    // Si no cumple, cerramos sesión y enviamos error
+    auth()->logout();
+    return '/login?error=no_aprobado';
 }
+
 }

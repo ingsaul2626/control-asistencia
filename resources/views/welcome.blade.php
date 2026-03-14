@@ -28,7 +28,7 @@
             <nav class="flex items-center gap-4">
                 @if (Route::has('login'))
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 bg-slate-900 text-white rounded-2xl transition-all hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-100 active:scale-95">Dashboard</a>
+                        <a href="{{ url('/dashboard') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 bg-slate-900 text-white rounded-2xl transition-all hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-100 active:scale-95">Inicio</a>
                     @else
                         <a href="{{ route('login') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 text-slate-600 hover:text-indigo-600 transition-colors">Entrar</a>
                         @if (Route::has('register'))
@@ -52,71 +52,65 @@
                     Control de Proyectos <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-400">&</span> Asistencia.
                 </h1>
                 <p class="text-lg lg:text-xl text-slate-500 max-w-2xl font-medium leading-relaxed">
-                    Plataforma técnica para la supervisión centralizada de eventos, despliegue de personal operativo y métricas de rendimiento en tiempo real.
+                    Plataforma técnica para la supervisión centralizada de proyectos, despliegue de personal operativo y métricas de rendimiento en tiempo real.
                 </p>
             </div>
         </section>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-            @forelse($eventos as $evento)
+            @forelse($proyectos as $proyecto)
                 <article class="group relative bg-white border border-slate-100 rounded-[2.5rem] p-3 transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(79,70,229,0.15)] hover:-translate-y-2">
 
-                    {{-- Enlace que envuelve la imagen y el título para mejor usabilidad --}}
-                    <a href="{{ route('eventos.show', $evento->id) }}" class="block">
+                    <a href="{{ route('admin.proyectos.show', $proyecto->id) }}" class="block">
 
-                        {{-- Badge de Fecha Superior --}}
+                        {{-- Badge de Fecha --}}
                         <div class="absolute top-6 right-6 z-10">
                             <div class="px-4 py-2 bg-white/90 backdrop-blur-md shadow-sm rounded-2xl text-center">
-                                <span class="block text-xs font-black text-slate-800 leading-none">{{ \Carbon\Carbon::parse($evento->fecha)->format('d') }}</span>
-                                <span class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest">{{ \Carbon\Carbon::parse($evento->fecha)->format('M') }}</span>
+                                <span class="block text-xs font-black text-slate-800 leading-none">{{ \Carbon\Carbon::parse($proyecto->fecha)->format('d') }}</span>
+                                <span class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest">{{ \Carbon\Carbon::parse($proyecto->fecha)->format('M') }}</span>
                             </div>
                         </div>
 
-                        {{-- Contenedor de Imagen --}}
+                        {{-- Imagen --}}
                         <div class="aspect-[16/11] w-full overflow-hidden rounded-[2rem] bg-slate-100 relative mb-6">
-                            @if($evento->imagen)
-                                <img src="{{ asset('storage/' . $evento->imagen) }}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="{{ $evento->titulo }}">
+                            @if($proyecto->imagen)
+                                <img src="{{ asset('storage/' . $proyecto->imagen) }}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="{{ $proyecto->titulo }}">
                             @else
                                 <div class="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 to-slate-100">
                                     <svg class="w-12 h-12 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                 </div>
                             @endif
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         </div>
 
-                        {{-- Contenido --}}
                         <div class="px-5 pb-2">
                             <div class="flex items-center gap-2 mb-3">
                                 <div class="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
                                 <span class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                    {{ $evento->lugar ?? 'Campo Tecnológico' }}
+                                    {{ $proyecto->lugar ?? 'Campo Tecnológico' }}
                                 </span>
                             </div>
 
                             <h3 class="text-2xl font-extrabold text-slate-800 mb-6 tracking-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
-                                {{ $evento->titulo }}
+                                {{ $proyecto->titulo }}
                             </h3>
                         </div>
                     </a>
 
-                    {{-- Footer de la Tarjeta --}}
+                    {{-- Footer --}}
                     <div class="px-5 pb-6">
                         <div class="flex items-center justify-between pt-5 border-t border-slate-50">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white text-[10px] font-black shadow-inner">
-                                    {{ strtoupper(substr($evento->user->name ?? '?', 0, 2)) }}
+                                    {{ strtoupper(substr($proyecto->user->name ?? '?', 0, 2)) }}
                                 </div>
                                 <div>
                                     <h4 class="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1">Responsable</h4>
-                                    <p class="text-xs font-bold text-slate-700">{{ $evento->user->name ?? 'Por asignar' }}</p>
+                                    <p class="text-xs font-bold text-slate-700">{{ $proyecto->user->name ?? 'Por asignar' }}</p>
                                 </div>
                             </div>
 
-                            {{-- Botón de Acción --}}
-                            <a href="{{ route('eventos.show', $evento->id) }}" class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-300 hover:scale-110 group-hover:border-indigo-100 group-hover:text-indigo-500 transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                </svg>
+                            <a href="{{ route('admin.proyectos.show', $proyecto->id) }}" class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-300 hover:scale-110 group-hover:border-indigo-100 group-hover:text-indigo-500 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </a>
                         </div>
                     </div>
@@ -141,7 +135,6 @@
                 </span>
                 <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">© 2026 Core Operations System</p>
             </div>
-
             <div class="flex gap-10">
                 <a href="#" class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-colors">Infraestructura</a>
                 <a href="#" class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-colors">Seguridad</a>
@@ -149,6 +142,5 @@
             </div>
         </div>
     </footer>
-
 </body>
 </html>

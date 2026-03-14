@@ -29,18 +29,18 @@ class PasswordResetLinkController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        // 2. Buscamos al usuario
-        $user = User::where('email', $request->email)->first();
+        // 2. Buscamos al usuarios
+        $users = User::where('email', $request->email)->first();
 
         // 3. Si no existe, error
-        if (!$user) {
+        if (!$users) {
             return back()->withErrors([
                 'email' => 'No pudimos encontrar una cuenta con esa dirección de correo electrónico.',
             ]);
         }
 
         // 4. Generamos el Token de seguridad
-        $token = Password::createToken($user);
+        $token = Password::createToken($users);
 
         // 5. Redirección directa a la vista de "Reset" (Saltando el envío de correo)
         // Asegúrate de que tu ruta 'password.reset' reciba estos parámetros

@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Evento;
-use App\Models\User;
-use App\Models\Asistencia; // Asegúrate de importar el modelo
-use Illuminate\Support\Facades\Storage;
+use App\Models\Proyecto;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
  public function index()
 {
+    $totalusuarios = \App\Models\User::count();
     $hoy = now()->toDateString();
-    $totalEmpleados = \App\Models\User::where('role', 'user')->count();
+    $totalusuarios = \App\Models\User::where('role', 'user')->count();
     $asistenciasHoy = \App\Models\Asistencia::whereDate('fecha', $hoy)->get();
-    $misEventos = \App\Models\Evento::where('user_id', auth()->id())->get();
+    $usuariosAusentes = \App\Models\User::where('status', 'ausente')->get();
+    $misProyectos = \App\Models\Proyecto::where('user_id', \Illuminate\Support\Facades\Auth::id())->get();
+    $usuarios = \App\Models\User::whereNull('deleted_at')->get();
 
     $conteoPresentes = $asistenciasHoy->whereIn('status', ['presente', 'en_progreso', 'finalizado'])->count();
     $conteoAusentes = $asistenciasHoy->where('status', 'ausente')->count();
@@ -26,18 +27,29 @@ class AdminController extends Controller
                         ->whereNotIn('id', $idConRegistro)
                         ->count();
 
-    $porcentajeAsistencias = $totalEmpleados > 0 ? round(($conteoPresentes / $totalEmpleados) * 100) : 0;
-    $empleadosAusentes = \App\Models\User::whereIn('id', $asistenciasHoy->where('status', 'ausente')->pluck('user_id'))->get();
+    $porcentajeAsistencias = $totalusuarios > 0 ? round(($conteoPresentes / $totalusuarios) * 100) : 0;
+    $usuariossAusentes = \App\Models\User::whereIn('id', $asistenciasHoy->where('status', 'ausente')->pluck('user_id'))->get();
 
-    $reportesRecientes = \App\Models\Evento::with('user')
-        ->whereNotNull('reporte_trabajador')->where('reporte_trabajador', '<>', '')
-        ->orderBy('updated_at', 'desc')->take(10)->get();
+    $proyectos = Proyecto::query()
+    ->whereNotNull('user_id') // Filtramos por el usuario asignado
+    ->where('user_id', '<>', '') // Aseguramos que no esté vacío
+    ->orderBy('updated_at', 'desc')
+    ->take(10)
+    ->get();
+
+
 
     // NOTA: Aquí quitamos $todosLosEventos porque el inicio no es para asignar proyectos
-    return view('dashboard', compact(
-        'totalEmpleados', 'conteoPresentes', 'conteoAusentes', 'conteoPendientes',
-        'porcentajeAsistencias', 'empleadosAusentes', 'reportesRecientes'
+   return view('dashboard', compact(
+        'totalusuarios',
+        'conteoPresentes',
+        'conteoAusentes',
+        'conteoPendientes',
+        'porcentajeAsistencias',
+        'usuariosAusentes',
+
     ));
+
 }
     // --- MANTENEMOS TUS FUNCIONES DE PROYECTOS INTACTAS ---
 
@@ -50,7 +62,7 @@ class AdminController extends Controller
             'archivo' => 'nullable|file|mimes:pdf,zip,docx,jpg,png|max:10240',
         ]);
 
-        $evento = Evento::findOrFail($request->evento_id);
+        $evento = Proyecto::findOrFail($request->evento_id);
         $evento->user_id = $request->user_id;
         $evento->descripcion = $request->descripcion;
 
@@ -70,7 +82,7 @@ class AdminController extends Controller
             'archivo' => 'nullable|file|mimes:pdf,zip,docx,jpg,png|max:10240',
         ]);
 
-        $proyecto = new Evento();
+        $proyecto = new Proyecto();
         $proyecto->titulo = $request->titulo;
         $proyecto->user_id = $request->user_id;
         $proyecto->fecha = now()->format('Y-m-d');
@@ -85,7 +97,7 @@ class AdminController extends Controller
 
     public function update(Request $request, $id)
     {
-        $proyecto = Evento::findOrFail($id);
+        $proyecto = Proyecto::findOrFail($id);
         $proyecto->titulo = $request->titulo;
         $proyecto->user_id = $request->user_id;
         $proyecto->fecha = $request->fecha ?? $proyecto->fecha;
@@ -100,7 +112,7 @@ class AdminController extends Controller
 
     public function destroy($id)
     {
-        $proyecto = Evento::findOrFail($id);
+        $proyecto = Proyecto::findOrFail($id);
         if ($proyecto->archivo) {
             Storage::disk('public')->delete($proyecto->archivo);
         }
@@ -117,44 +129,67 @@ class AdminController extends Controller
 public function panelControl()
 {
     // Cargamos los datos para la tabla
-    $eventos = \App\Models\Evento::with('user')->get();
+    $proyectos = \App\Models\Proyecto::with('user')->get();
     $usuarios = \App\Models\User::where('role', 'user')->get();
 
-    // MODIFICACIÓN: Apunta a la carpeta proyectos y al archivo index
-    return view('admin.proyectos.index', compact('eventos', 'usuarios'));
+
+    return view('admin.panel', compact('proyectos', 'usuarios'));
 }
 
 public function show($id)
 {
     // Buscamos el proyecto con su responsable
-    $evento = \App\Models\Evento::with('user')->findOrFail($id);
+    $proyecto = \App\Models\Proyecto::with('user')->findOrFail($id);
 
     // Retornamos la nueva vista que acabamos de crear
-    return view('admin.proyectos.show', compact('evento'));
+    return view('admin.proyectos.show', compact('proyecto'));
 }
 public function asignarProyecto(Request $request)
 {
     // 1. Validamos los datos
     $request->validate([
-        'evento_id' => 'required|exists:eventos,id',
+        'evento_id' => 'required|exists:proyectos,id',
         'user_id' => 'required|exists:users,id',
         'archivo' => 'nullable|mimes:pdf,jpg,png,jpeg|max:2048'
     ]);
 
     // 2. Buscamos el proyecto
-    $evento = Evento::findOrFail($request->evento_id);
+    $proyecto = Proyecto::findOrFail($request->evento_id);
 
     // 3. Subimos el archivo si existe
     if ($request->hasFile('archivo')) {
         $ruta = $request->file('archivo')->store('planos', 'public');
-        $evento->archivo_ruta = $ruta; // Asegúrate de tener esta columna en tu DB
+        $proyecto->archivo_ruta = $ruta; // Asegúrate de tener esta columna en tu DB
     }
 
     // 4. Asignamos el trabajador y activamos el proyecto
-    $evento->user_id = $request->user_id;
-    $evento->activo = true;
-    $evento->save();
+    $proyecto->user_id = $request->user_id;
+    $proyecto->activo = true;
+    $proyecto->save();
 
     return redirect()->back()->with('success', '¡Proyecto vinculado y asignado con éxito!');
+}
+
+
+public function aprobarUsuario(Request $request, $id)
+{
+    $usuario = \App\Models\User::findOrFail($id);
+
+    // Cambiamos el estado a aprobado
+    $usuario->update([
+        'is_approval' => true,
+        'status' => 'active' // Opcional: si también controlas el estatus por texto
+    ]);
+
+    return back()->with('success', 'Usuario aprobado exitosamente.');
+}
+
+public function rechazarUsuario(Request $request, $id)
+{
+    $usuario = \App\Models\User::findOrFail($id);
+    // Puedes eliminarlo o simplemente marcarlo como denegado
+    $usuario->delete();
+
+    return back()->with('success', 'Usuario rechazado.');
 }
 }

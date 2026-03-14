@@ -12,19 +12,17 @@ class AsistenciaController extends Controller
 {
     public function index(Request $request)
     {
+        $fecha = date('Y-m-d');
         $fecha = $request->get('fecha', now()->toDateString());
-        $empleados = User::where('role', 'user')->get();
+        $users = \App\Models\User::where('role', 'user')->get();
+        $asistenciasHoy = \App\Models\Asistencia::where('fecha', $fecha)->get()->keyBy('user_id');
+        return view('asistencias.index', compact('users', 'fecha', 'asistenciasHoy'));
+}
 
-        $asistenciasHoy = Asistencia::where('fecha', $fecha)
-            ->get()
-            ->keyBy('user_id');
-
-        return view('asistencias.index', compact('empleados', 'asistenciasHoy', 'fecha'));
-    }
 
     /**
      * ACCIÓN DEL ADMIN: Asigna horario inicial.
-     * Estatus resultante: 'finalizado' (pero sin hora de salida, lo que indica "esperando usuario").
+     * Estatus resultante: 'finalizado' (pero sin hora de salida, lo que indica "esperando usuarios").
      */
     public function store(Request $request)
     {
@@ -69,30 +67,30 @@ class AsistenciaController extends Controller
     }
 
     /**
-     * ACCIÓN DEL USUARIO: Acepta el horario.
+     * ACCIÓN DEL usuarios: Acepta el horario.
      * Estatus resultante: 'en_progreso' (Punto verde animado para el admin).
      */
     public function aceptarHorario(Request $request)
     {
-        $asistencia = Asistencia::where('user_id', auth()->id())
+        $asistencia = Asistencia::where('user_id', Auth::id())
                                 ->whereDate('fecha', now()->toDateString())
                                 ->firstOrFail();
 
         $asistencia->update([
             'status' => 'en_progreso',
-            'observaciones' => ($asistencia->observaciones ? $asistencia->observaciones . " | " : "") . "Turno iniciado por usuario."
+            'observaciones' => ($asistencia->observaciones ? $asistencia->observaciones . " | " : "") . "Turno iniciado por usuarios."
         ]);
 
         return back()->with('success', '¡Jornada en progreso! Buen trabajo.');
     }
 
     /**
-     * ACCIÓN DEL USUARIO: Marca salida.
+     * ACCIÓN DEL usuarios: Marca salida.
      * Estatus resultante: 'finalizado' (Punto verde/azul fijo).
      */
-    public function marcarSalidaUsuario(Request $request)
+    public function marcarSalidausuarios(Request $request)
     {
-        $asistencia = Asistencia::where('user_id', auth()->id())
+        $asistencia = Asistencia::where('user_id', Auth::id())
                                 ->whereDate('fecha', now()->toDateString())
                                 ->firstOrFail();
 

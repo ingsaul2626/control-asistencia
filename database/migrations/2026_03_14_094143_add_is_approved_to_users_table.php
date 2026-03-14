@@ -9,18 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up() {
-    Schema::table('eventos', function (Blueprint $table) {
-        $table->text('reporte_trabajador')->nullable(); // Aquí guardaremos el avance
-    });
+    public function up()
+{
+    if (!Schema::hasColumn('users', 'is_approved')) {
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_approved')->default(false);
+        });
     }
+}
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('eventos', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }

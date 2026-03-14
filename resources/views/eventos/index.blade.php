@@ -43,8 +43,8 @@
                                     <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Responsable</label>
                                     <select name="user_id" class="w-full bg-slate-50 border-slate-200 rounded-2xl py-3 focus:ring-4 focus:ring-indigo-100 transition-all font-bold text-slate-600" required>
                                         <option value="">Seleccione un líder...</option>
-                                        @foreach($usuarios as $user)
-                                            <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>👤 {{ $user->name }}</option>
+                                        @foreach($usuarioss as $users)
+                                            <option value="{{ $users->id }}" {{ old('user_id') == $users->id ? 'selected' : '' }}>👤 {{ $users->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>

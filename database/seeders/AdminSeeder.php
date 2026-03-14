@@ -1,12 +1,12 @@
 <?php
 
-namespace Database\Seeders; 
+namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class AdminSeeder extends Seeder 
+class AdminSeeder extends Seeder // <--- ¡AQUÍ ESTÁ EL CAMBIO! Debe llamarse AdminSeeder
 {
     public function run(): void
     {

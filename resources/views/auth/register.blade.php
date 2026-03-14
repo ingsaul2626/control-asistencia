@@ -4,8 +4,46 @@
     </div>
 
     <form method="POST" action="{{ route('register') }}">
-        @csrf
+                        @csrf <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Cédula</label>
+                        <input type="text" name="cedula"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            maxlength="8" 
+                            value="{{ old('cedula') }}"
+                            placeholder="Ej: 25123456"
+                            class="w-full rounded-xl border-gray-300 focus:ring-indigo-500" required>
+                        @error('cedula')
+                            <p class="text-red-600 text-xs mt-1 font-bold">{{ $message }}</p>
+                        @enderror
+                    </div>
+                                        <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2 text-slate-700">Cargo</label>
+                        <select name="cargo" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500" required>
+                            <option value="" disabled selected>Seleccione un cargo...</option>
+                            <option value="Docente Ordinario" {{ old('cargo') == 'Docente Ordinario' ? 'selected' : '' }}>Docente Ordinario</option>
+                            <option value="Administrativo Fijo" {{ old('cargo') == 'Administrativo Fijo' ? 'selected' : '' }}>Administrativo Fijo</option>
+                            <option value="Administrativo Contratado" {{ old('cargo') == 'Administrativo Contratado' ? 'selected' : '' }}>Administrativo Contratado</option>
+                            <option value="Obrero" {{ old('cargo') == 'Obrero' ? 'selected' : '' }}>Obrero</option>
+                        </select>
+                        @error('cargo')
+                            <p class="text-red-600 text-xs mt-1 font-bold">{{ $message }}</p>
+                        @enderror
+                    </div>
 
+                    <div class="mb-4">
+                <label class="block text-sm font-bold mb-2 text-slate-700">Teléfono</label>
+                <input type="text" name="telefono"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)"
+                    value="{{ old('telefono') }}"
+                    placeholder="Ej: 04141234567"
+                    class="w-full rounded-xl border-gray-300 focus:ring-indigo-500" required>
+                @error('telefono')
+                    <p class="text-red-600 text-xs mt-1 font-bold flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" /></svg>
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
         <div>
             <x-input-label for="name" :value="__('Nombre Completo')" />
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Ej. Juan Pérez" />
@@ -14,7 +52,7 @@
 
         <div class="mt-4">
             <x-input-label for="email" :value="__('Correo Electrónico')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="usuario@correo.com" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="usuarios@correo.com" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 

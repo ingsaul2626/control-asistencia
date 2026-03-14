@@ -11,15 +11,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // 1. Configuración de seguridad (fuera del array alias)
+        $middleware->trustProxies(at: '*');
 
-        // Registramos el alias 'role' para que tus rutas funcionen
+        // 2. Alias de Middlewares (aquí van tus alias)
         $middleware->alias([
+            'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'superadmin' => \App\Http\Middleware\CheckSuperAdmin::class,
-            $middleware->trustProxies(at: '*'),
+            'checkUserApproved' => \App\Http\Middleware\CheckUserApproved::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+

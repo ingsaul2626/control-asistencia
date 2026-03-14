@@ -71,10 +71,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($empleados as $empleado)
-                            @php
-                                $res = $empleado->statusAsistenciaHoy();
-                                $asistencia = $empleado->asistencias->where('fecha', now()->toDateString())->first();
+                        @foreach($users as $usuario) @php
+                                $res = $usuario->statusAsistenciaHoy(); // Agregado $
+                                $asistencia = $usuario->asistencias->where('fecha', now()->toDateString())->first(); // Agregado $
                             @endphp
                             <tr class="bg-white border border-slate-50 shadow-sm rounded-2xl group transition-all hover:shadow-md hover:bg-slate-50/50">
                                 {{-- Trabajador --}}
@@ -82,22 +81,18 @@
                                     <div class="flex items-center">
                                         <div class="relative">
                                             <div class="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
-                                                {{ substr($empleado->name, 0, 1) }}
-                                            </div>
+                                                {{ substr($usuario->name, 0, 1) }} </div>
                                             <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white {{ $res->clase_punto }} {{ $res->label === 'ACTIVO' ? 'animate-pulse' : '' }}"></div>
                                         </div>
                                         <div class="ml-4">
-                                            <span class="text-sm font-black text-slate-700 block tracking-tight">{{ $empleado->name }}</span>
-                                            <span class="text-[9px] font-bold py-0.5 px-2 rounded-md bg-slate-100 text-slate-500 tracking-tighter uppercase">Status: {{ $res->label }}</span>
+                                            <span class="text-sm font-black text-slate-700 block tracking-tight">{{ $usuario->name }}</span> <span class="text-[9px] font-bold py-0.5 px-2 rounded-md bg-slate-100 text-slate-500 tracking-tighter uppercase">Status: {{ $res->label }}</span>
                                         </div>
                                     </div>
                                 </td>
 
                                 <form action="{{ route('admin.asistencias.store') }}" method="POST">
                                     @csrf
-                                    <input type="hidden" name="user_id" value="{{ $empleado->id }}">
-
-                                    {{-- Entrada --}}
+                                    <input type="hidden" name="user_id" value="{{ $usuario->id }}"> {{-- Entrada --}}
                                     <td class="px-6 py-5 text-center">
                                         <input type="time" name="hora_entrada"
                                             value="{{ $asistencia && $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('H:i') : '' }}"
@@ -128,10 +123,9 @@
                                 </form>
 
                                             @if($res->label !== 'FALTA')
-                                                <form action="{{ route('admin.asistencias.marcar-falta') }}" method="POST" class="inline">
+                                                <form action="{{ route('admin.asistencias.marcar-falta', ['id' => $usuario->id]) }}" method="POST">
                                                     @csrf
-                                                    <input type="hidden" name="user_id" value="{{ $empleado->id }}">
-                                                    <button type="button" onclick="confirmarFaltaCustom(this)"
+                                                    <input type="hidden" name="user_id" value="{{ $usuario->id }}"> <button type="button" onclick="confirmarFaltaCustom(this)"
                                                             class="bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white p-2.5 rounded-xl transition-all shadow-sm">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                     </button>
@@ -139,7 +133,7 @@
                                             @endif
                                         </div>
                                     </td>
-                            </tr>
+                                </tr>
                         @endforeach
                     </tbody>
                 </table>

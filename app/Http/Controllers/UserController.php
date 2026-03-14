@@ -1,154 +1,97 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Asistencia;
 use App\Models\Evento;
-use App\Http\Controllers\Controller;
+use App\Models\Proyecto;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     *
-     *
-     *
-     */
-    public function dashboard()
-{
-    $userId = auth()->id();
-    $mesActual = now()->month;
-
-    // 1. Eventos asignados al usuario
-    $misEventos = Evento::where('user_id', $userId)->get();
-
-    // 2. Historial de asistencias del mes
-    $historialAsistencias = Asistencia::where('user_id', $userId)
-        ->whereMonth('fecha', $mesActual)
-        ->orderBy('fecha', 'desc')
-        ->get();
-
-    // 3. Cálculo de estadísticas rápidas
-    $totalHorasMes = $historialAsistencias->sum(function($asistencia) {
-        return $asistencia->horas_trabajadas;
-    });
-
-    $diasAsistidos = $historialAsistencias->where('status', 'finalizado')->count();
-
-    return view('dashboard', compact('misEventos', 'historialAsistencias', 'totalHorasMes', 'diasAsistidos'));
-}
-  public function myProjects()
+    // Muestra el dashboard del usuarios
+    public function index()
     {
-        // 1. Obtenemos el ID del usuario que está logueado actualmente
-        $userId = Auth::id();
+        $user = Auth::user();
+        $usersId = Auth::id();
+        $mesActual = now()->month;
 
+        $historialAsistencias = Asistencia::where('user_id', $usersId)
+            ->whereMonth('fecha', $mesActual)
+            ->orderBy('fecha', 'desc')
+            ->get();
 
-        // 2. Buscamos SOLO los eventos donde el 'user_id' sea igual al del usuario logueado
-       $misEventos = Evento::where('user_id', $userId)->get();
-        // 3. Pasamos la variable a la vista (asegúrate que el nombre coincida)
-        return view('user.dashboard', compact('misEventos'));
-    }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $totalHorasMes = $historialAsistencias->sum('horas_trabajadas');
+        $diasAsistidos = $historialAsistencias->where('status', 'finalizado')->count();
+        $misProyectos = Proyecto::where('user_id', $usersId)->get();
+
+        return view('user.dashboard', compact('misProyectos', 'historialAsistencias', 'totalHorasMes', 'diasAsistidos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function myProjects()
+    {
+        $misProyectos = Proyecto::where('user_id', Auth::id())->get();
+        return view('user.dashboard', compact('misProyectos'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name'            => 'required|string|max:255',
+            'email'           => 'required|email|unique:users,email',
+            'cedula'          => 'required|string|max:8|unique:users,cedula',
+            'password'        => 'required|min:8',
+            'role'            => 'required|in:user,admin',
+            'tipo_trabajador' => 'nullable|string',
+            'telefono' => 'required|numeric|digits_between:10,11',
+            'seccion'         => 'nullable|string',
+            'cargo'           => [ 'required','in:Docente Ordinario,Administrativo Fijo,Administrativo Contratado,Obrero'],
+            'is_approval'     => false,
+            'status'          => 'pending',
+        ]);
+
+        User::create([
+            'name'            => $request->name,
+            'email'           => $request->email,
+            'cedula'          => $request->cedula,
+            'password'        => Hash::make($request->password),
+            'role'            => $request->role,
+            'tipo_trabajador' => $request->tipo_trabajador,
+            'telefono'        => $request->telefono, // ¿Estás recibiendo esto del form?
+            'cargo'           => $request->cargo,
+        ]);
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'usuarios registrado exitosamente.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        if ($id == 1 && $request->role !== 'admin') {
+            return redirect()->back()->with('error', 'No puedes cambiar el rol del administrador raíz.');
+        }
+        $users = User::findOrFail($id);
+        $users->update($request->all());
+        return redirect()->back()->with('success', 'usuarios actualizado correctamente.');
+    }
+
+    public function destroy($id)
+    {
+        if ($id == 1) {
+            return redirect()->back()->with('error', 'El administrador principal no puede ser eliminado.');
+        }
+        User::findOrFail($id)->delete();
+        return back()->with('success', 'El usuarios ha sido eliminado correctamente.');
+    }
+
     public function updateReport(Request $request, $id)
-{
-    $request->validate([
-        'reporte_trabajador' => 'required|string|max:1000',
-    ]);
-
-    $evento = Evento::where('id', $id)
-                    ->where('user_id', auth()->id())
-                    ->firstOrFail();
-    $evento->reporte_trabajador = $request->reporte_trabajador;
-    $evento->update([
-        'reporte_trabajador' => $request->reporte_trabajador
-    ]);
-    return back()->with('success', 'Reporte enviado al administrador.');
-}
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
     {
-        //
+        $request->validate(['reporte_trabajador' => 'required|string|max:1000']);
+        $evento = Proyecto::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $evento->update(['reporte_trabajador' => $request->reporte_trabajador]);
+        return back()->with('success', 'Reporte enviado al administrador.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-   public function update(Request $request, $id)
-{
-    // Impedir que se le quite el rol de admin o se desactive
-    if ($id == 1 && $request->role !== 'admin') {
-        return redirect()->back()->with('error', 'No puedes cambiar el rol del administrador raíz.');
-    }
-
-    $user->update($request->all());
-    return redirect()->back()->with('success', 'Usuario actualizado correctamente.');
-}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-   public function destroy($id)
-{
-    if ($id == 1) {
-        return redirect()->back()->with('error', 'El administrador principal no puede ser eliminado.');
-    }
-
-    $proyecto->delete();
-
-    return back()->with('success', 'La tarea ha sido eliminada de tu lista.');
-}
-
-public function store(Request $request)
-{
-    $request->validate([
-        'name'     => 'required|string|max:255',
-        'email'    => 'required|email|unique:users,email',
-        'cedula'   => 'required|unique:users,cedula',
-        'password' => 'required|min:8',
-        'role'     => 'required|in:user,admin',
-    ]);
-
-    // Creamos al trabajador directamente en la tabla de usuarios
-    User::create([
-        'name'     => $request->name,
-        'email'    => $request->email,
-        'cedula'   => $request->cedula,
-        'password' => Hash::make($request->password), // IMPORTANTE: Siempre encriptar
-        'role'     => $request->role,
-    ]);
-
-    return redirect()->route('asistencias.index')->with('success', 'Trabajador registrado exitosamente como usuario.');
-}
-
-
-public function asistencias()
-{
-    return $this->hasMany(Asistencia::class, 'user_id');
-}
-
-public function ultimaAsistencia()
-{
-    return $this->hasOne(Asistencia::class, 'user_id')->latestOfMany('fecha');
-}
 }

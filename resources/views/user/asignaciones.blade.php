@@ -2,18 +2,18 @@
     @php
         // Configuración de idioma y datos iniciales
         \Carbon\Carbon::setLocale('es');
-        $user = auth()->user();
-        $userId = $user->id;
+        $users = auth()->user();
+        $usersId = $users->id;
         $mesActual = now()->month;
 
         // 1. Buscamos la asistencia de hoy
-        $asistencia = \App\Models\Asistencia::where('user_id', $userId)
+        $asistencia = \App\Models\Asistencia::where('user_id', $usersId)
                         ->whereDate('fecha', now()->toDateString())
                         ->first();
         $status = $asistencia ? $asistencia->status : 'por_asignar';
 
         // 2. Historial del mes (Bitácora)
-        $historialAsistencias = \App\Models\Asistencia::where('user_id', $userId)
+        $historialAsistencias = \App\Models\Asistencia::where('user_id', $usersId)
                                 ->whereMonth('fecha', $mesActual)
                                 ->orderBy('fecha', 'desc')
                                 ->get();
@@ -40,7 +40,7 @@
             <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-black text-slate-900 tracking-tighter">
-                        Hola, {{ explode(' ', $user->name)[0] }} 👋
+                        Hola, {{ explode(' ', $users->name)[0] }} 👋
                     </h1>
                     <p class="text-slate-500 text-sm font-medium italic">Gestión de proyectos y notas personales.</p>
                 </div>
@@ -92,10 +92,10 @@
                             class="w-full bg-transparent border-none focus:ring-0 text-amber-900/80 placeholder-amber-300 text-sm italic leading-relaxed resize-none custom-scrollbar"
                             rows="3"
                             placeholder="Escribe recordatorios o pendientes aquí..."
-                            oninput="localStorage.setItem('user_notes_' + {{ $userId }}, this.value)"
+                            oninput="localStorage.setItem('user_notes_' + {{ $usersId }}, this.value)"
                         ></textarea>
                         <script>
-                            document.getElementById('userNotes').value = localStorage.getItem('user_notes_' + {{ $userId }}) || '';
+                            document.getElementById('userNotes').value = localStorage.getItem('user_notes_' + {{ $usersId }}) || '';
                         </script>
                     </div>
 

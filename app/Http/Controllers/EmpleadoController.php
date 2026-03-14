@@ -2,53 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Asistencia;
+use App\Models\Evento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Carbon\Carbon; // Importante para manejo de fechas
+use Carbon\Carbon;
 
-class EmpleadoController extends Controller
+class usuariosController extends Controller
 {
     public function index()
     {
-        // 1. Traemos usuarios con rol 'user'
-        $empleados = User::where('role', 'user')->get();
-
-        // 2. Obtenemos las asistencias de HOY para alimentar el indicador de estado
-        // Esto soluciona el error "Undefined variable $asistenciasHoy"
+        $usuarioss = User::where('role', 'user')->get();
         $asistenciasHoy = Asistencia::whereDate('fecha', Carbon::today())->get();
 
-        // 3. Pasamos ambas variables a la vista
-        return view('empleados.index', compact('empleados', 'asistenciasHoy'));
+        // CAMBIO: Asegúrate de que este archivo esté en: resources/views/admin/usuarios/index.blade.php
+        return view('admin.usuarios.index', compact('usuarios', 'asistenciasHoy'));
     }
 
     public function create()
     {
-        return view('empleados.create');
+        return view('admin.usuarios.create');
     }
 
     public function store(Request $request)
     {
-        // Limpiamos la cédula de puntos o guiones antes de validar
-        $request->merge([
-            'cedula' => preg_replace('/[^0-9]/', '', $request->cedula)
-        ]);
+        $request->merge(['cedula' => preg_replace('/[^0-9]/', '', $request->cedula)]);
 
         $request->validate([
             'cedula' => ['required', 'numeric', 'digits_between:7,8', 'unique:users,cedula'],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'tipo_trabajador' => 'required',
-            'seccion' => 'required|string|max:100',
-        ], [
-            'cedula.unique' => '¡Atención! Esta cédula ya está registrada.',
-            'cedula.digits_between' => 'La cédula debe tener 7 u 8 números.',
-            'email.unique' => 'Este correo ya está en uso.',
-            'required' => 'Este campo es obligatorio.'
         ]);
 
         User::create([
@@ -61,58 +47,49 @@ class EmpleadoController extends Controller
             'seccion' => $request->seccion,
         ]);
 
-        return redirect()->route('admin.empleados.index')->with('success', 'Trabajador registrado con éxito.');
+        return redirect()->route('admin.usuarios.index')->with('success', 'usuarios registrado con éxito.');
     }
 
     public function show($id)
     {
-        $empleado = User::with(['asistencias' => function($query) {
+        $usuarios = User::with(['asistencias' => function($query) {
             $query->orderBy('fecha', 'desc')->limit(10);
         }])->findOrFail($id);
 
-        return view('empleados.show', compact('empleado'));
+        return view('admin.usuarios.show', compact('usuarios'));
     }
 
     public function edit($id)
     {
-        $empleado = User::findOrFail($id);
-        return view('empleados.edit', compact('empleado'));
+        $usuarios = User::findOrFail($id);
+        return view('admin.usuarios.edit', compact('usuarios'));
     }
 
     public function update(Request $request, $id)
     {
-        $empleado = User::findOrFail($id);
-
-        $request->merge([
-            'cedula' => preg_replace('/[^0-9]/', '', $request->cedula)
-        ]);
+        $usuarios = User::findOrFail($id);
+        $request->merge(['cedula' => preg_replace('/[^0-9]/', '', $request->cedula)]);
 
         $request->validate([
             'cedula' => ['required', 'numeric', 'digits_between:7,8', Rule::unique('users')->ignore($id)],
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($id)],
-            'tipo_trabajador' => 'required',
-            'seccion' => 'required',
         ]);
 
         $data = $request->only(['name', 'email', 'cedula', 'tipo_trabajador', 'seccion']);
-
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
-        $empleado->update($data);
-
-        return redirect()->route('admin.empleados.index')->with('success', '¡Datos de ' . $empleado->name . ' actualizados!');
+        $usuarios->update($data);
+        return redirect()->route('admin.usuarios.index')->with('success', 'Datos actualizados.');
     }
 
     public function destroy($id)
     {
-        $empleado = User::findOrFail($id);
-        $nombre = $empleado->name;
-        $empleado->delete();
-
-        return redirect()->route('admin.empleados.index')->with('delete', "El trabajador $nombre ha sido eliminado.");
+        $usuarios = User::findOrFail($id);
+        $usuarios->delete();
+        return redirect()->route('admin.usuarios.index')->with('delete', "usuarios eliminado.");
     }
 
     public function finalizarJornada(Request $request, $id)

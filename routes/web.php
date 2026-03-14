@@ -1,99 +1,112 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{
-    ProfileController, AsistenciaController, EmpleadoController,
-    ReporteController, EventoController, AdminController, UserController,
-    BitacoraController, NotificacionController
-};
+use App\Http\Controllers\{ ProfileController, AsistenciaController, ReporteController, ProyectoController,
+AdminController, UserController, BitacoraController, NotificacionController };
 use App\Http\Controllers\Admin\UsuarioController;
-use App\Models\{Evento, Empleado, Asistencia};
+use App\Http\Controllers\DashboardController;
+use App\Models\Proyecto;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 // 1. RUTA RAÍZ
 Route::get('/', function () {
-    if (auth()->check()) {
-        return auth()->user()->role === 'admin'
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('dashboard');
+    if (Auth::check()) {
+        return Auth::user()->role === 'admin' ? redirect()->route('admin.dashboard') : redirect()->route('user.asignaciones');
     }
-    $eventos = Evento::all();
-    return view('welcome', compact('eventos'));
+    return view('welcome', ['proyecto' => Proyecto::all()]);
 })->name('welcome');
 
-// 2. RUTAS COMUNES (AUTH)
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard General
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+// RUTA DE ESPERA
+Route::middleware(['auth'])->group(function () {
+    Route::get('/waiting-approval', function () { return view('auth.waiting-approval'); })->name('waiting-approval');
+});
 
+Route::get('/', function () {
+    // Aquí es donde falta enviar la variable
+    $proyectos = Proyecto::all();
+
+    // Debes pasarla usando with() o compact()
+    return view('welcome', compact('proyectos'));
+})->name('welcome');
+
+// 2. RUTAS COMUNES
+Route::middleware(['auth', 'verified', 'checkUserApproved'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Asistencias
-    Route::post('/asistencias/aceptar', [AsistenciaController::class, 'aceptarHorario'])->name('usuario.asistencias.aceptar');
-    Route::post('/asistencias/salida', [AsistenciaController::class, 'marcarSalidaUsuario'])->name('usuario.asistencias.salida');
-    Route::post('/asistencias/marcar-auto', [AsistenciaController::class, 'marcarSalidaAuto'])->name('asistencias.marcar-salida-auto');
+    Route::middleware(['auth', 'checkUserApproved'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Bitácora
+   Route::get('/waiting-approval', function () {
+    return view('auth.waiting-approval');
+})->name('waiting-approval');
+});
+
+    Route::post('/asistencias/aceptar', [AsistenciaController::class, 'aceptarHorario'])->name('usuarios.asistencias.aceptar');
+    Route::post('/asistencias/salida', [AsistenciaController::class, 'marcarSalidausuarios'])->name('usuarios.asistencias.salida');
+    Route::post('/asistencias/marcar-auto', [AsistenciaController::class, 'marcarSalidaAuto'])->name('asistencias.marcar-salida-auto');
+    Route::post('/asistencias/falta', [AsistenciaController::class, 'marcarFalta'])->name('asistencias.marcar-falta');
+
     Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
     Route::get('/bitacora/export', [BitacoraController::class, 'export'])->name('bitacora.export');
 
-    // --- SECCIÓN DE NOTIFICACIONES (Sincronizada con NotificacionController) ---
     Route::prefix('notificaciones')->group(function () {
-        // Vista para Admin (Bitácora/General)
         Route::get('/todas', [NotificacionController::class, 'index'])->name('notificaciones.index');
-
-        // Vista para Usuario (Sus asignaciones)
         Route::get('/mis-notificaciones', [NotificacionController::class, 'misNotificaciones'])->name('user.notificaciones');
-
-        // Acción: Marcar TODAS como leídas (Botón Limpiar del Navbar)
         Route::post('/marcar-leidas', [NotificacionController::class, 'marcarComoLeidas'])->name('notifications.markRead');
-
-        // Acción: Marcar una específica (Opcional)
         Route::post('/{id}/leer', [NotificacionController::class, 'marcarUnaLeida'])->name('notifications.readOne');
     });
 });
 
-// 3. PANEL ADMINISTRADOR (ROL: ADMIN)
+// 3. PANEL ADMINISTRADOR
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/reporte-hoy', [ReporteController::class, 'reporteHoy'])->name('reporte.hoy');
-    Route::get('/panel-control', [AdminController::class, 'panelControl'])->name('admin.panelControl');
+    Route::get('/panel-control', [AdminController::class, 'panelControl'])->name('panelControl');
 
-    Route::post('/proyectos/asignar', [AdminController::class, 'asignarProyecto'])->name('proyectos.asignar');
-    Route::get('/proyectos/{id}', [EventoController::class, 'show'])->name('proyectos.show');
-    Route::get('/proyectos-finalizados', [EventoController::class, 'finalizados'])->name('proyectos.finalizados');
+    // Rutas para gestión de usuarios
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
-    Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
-    Route::post('/usuarios/{usuario}/toggle', [UsuarioController::class, 'toggleAdmin'])->name('usuarios.toggle');
+    Route::post('/usuarios/{id}/toggle', [UsuarioController::class, 'toggleAdmin'])
+         ->name('admin.usuarios.toggle');
 
-    Route::resource('empleados', EmpleadoController::class);
+    Route::patch('/usuarios/{id}/approve', [UsuarioController::class, 'approve'])
+         ->name('admin.usuarios.approve');
+
+    Route::delete('/usuarios/{id}/decline', [UsuarioController::class, 'decline'])
+         ->name('admin.usuarios.decline');
+
+
+});
+// Rutas CRUD para usuarios
+    Route::resource('usuarios', UsuarioController::class)->parameters(['usuarios' => 'user']);
     Route::resource('asistencias', AsistenciaController::class);
 
-    Route::post('/asistencias/store', [AsistenciaController::class, 'store'])->name('asistencias.store');
-    Route::post('/asistencias/falta', [AsistenciaController::class, 'marcarFalta'])->name('asistencias.marcar-falta');
+    Route::get('/admin/proyectos', [ProyectoController::class, 'index'])->name('admin.proyectos.index');
+    Route::get('/proyectos/{proyecto}', [ProyectoController::class, 'show'])->name('proyectos.show');
+    Route::post('/proyectos/asignar', [AdminController::class, 'asignarProyecto'])->name('proyectos.asignar');
+    Route::get('/proyectos-finalizados', [ProyectoController::class, 'finalizados'])->name('proyectos.finalizados');
+    Route::get('proyectos/reportes', [ProyectoController::class, 'reportes'])->name('proyectos.reportes');
+    Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos.index');
+    Route::get('/proyectos/{proyecto}/edit', [ProyectoController::class, 'edit'])->name('proyectos.edit');
+    Route::post('/proyectos', [App\Http\Controllers\ProyectoController::class, 'store'])->name('proyectos.store');
 
-    Route::get('proyectos/reportes', [EventoController::class, 'reportes'])->name('proyectos.reportes');
-    Route::resource('proyectos', EventoController::class);
-    Route::patch('/empleados/{id}/finalizar', [EmpleadoController::class, 'finalizarJornada'])->name('empleados.finalizar');
+
+    Route::post('/asistencias/marcar-falta/{id}', [AsistenciaController::class, 'marcarFalta'])
+        ->name('asistencias.marcar-falta');
+
 });
 
-// 4. PANEL USUARIO / TRABAJADOR (ROL: USER)
+// 4. PANEL usuarios
 Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
-    // Proyectos reales del usuario
-    Route::get('/mis-asignaciones', function () {
-        $misEventos = Evento::where('user_id', auth()->id())
-                            ->orderBy('created_at', 'desc')
-                            ->get();
-        return view('user.asignaciones', compact('misEventos'));
-    })->name('asignaciones');
-
+    Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+    Route::get('/mis-asignaciones', [UserController::class, 'myProjects'])->name('asignaciones');
     Route::get('/mis-tareas', [UserController::class, 'myProjects'])->name('projects');
     Route::post('/reportar/{id}', [UserController::class, 'updateReport'])->name('reportar');
     Route::get('/descargar/{id}', [UserController::class, 'descargar'])->name('descargar');
 });
 
-// Detalles del proyecto (Acceso compartido)
-Route::get('/proyecto/{id}', [EventoController::class, 'show'])->name('eventos.show');
+Route::get('/proyecto/{id}', [ProyectoController::class, 'show'])->name('eventos.show');
 
 require __DIR__.'/auth.php';

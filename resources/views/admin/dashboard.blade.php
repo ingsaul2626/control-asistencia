@@ -47,8 +47,8 @@
                             <label class="block text-sm font-bold text-gray-700">Asignar a Trabajador</label>
                             <select name="user_id" id="user_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="">Seleccione un trabajador</option>
-                                @foreach($todosLosUsuarios as $usuario)
-                                    <option value="{{ $usuario->id }}">{{ $usuario->name }}</option>
+                                @foreach($todosLosusuarios as $usuarios)
+                                    <option value="{{ $usuarios->id }}">{{ $usuarios->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -142,7 +142,7 @@
             @forelse($reportesRecientes as $r)
                 <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                     <div class="flex justify-between mb-1">
-                        <span class="text-[10px] font-black text-indigo-600 uppercase">{{ $r->user->name ?? 'Usuario' }}</span>
+                        <span class="text-[10px] font-black text-indigo-600 uppercase">{{ $r->user->name ?? 'usuarios' }}</span>
                         <span class="text-[9px] text-gray-400">{{ $r->updated_at->diffForHumans() }}</span>
                     </div>
                     <p class="text-xs text-gray-700 italic">"{{ $r->reporte_trabajador }}"</p>

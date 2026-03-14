@@ -22,7 +22,7 @@ class NotificacionController extends Controller
     }
 
     /**
-     * Vista para el Usuario (Sus proyectos asignados)
+     * Vista para el usuarios (Sus proyectos asignados)
      */
     public function misNotificaciones()
     {
@@ -41,14 +41,14 @@ class NotificacionController extends Controller
      */
     public function marcarComoLeidas()
     {
-        $user = Auth::user();
+        $users = Auth::user();
 
-        if ($user->role === 'admin') {
+        if ($users->role === 'admin') {
             // Si el admin limpia, marca TODO como leido (opcional, según tu lógica)
             Actividad::where('leido', false)->update(['leido' => true]);
         } else {
-            // El usuario marca solo lo suyo
-            Actividad::where('user_id', $user->id)
+            // El usuarios marca solo lo suyo
+            Actividad::where('user_id', $users->id)
                 ->where('leido', false)
                 ->update(['leido' => true]);
         }

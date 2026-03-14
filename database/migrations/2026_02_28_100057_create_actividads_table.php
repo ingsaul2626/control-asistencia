@@ -16,7 +16,7 @@ return new class extends Migration
         $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
         $table->string('accion');      // Ejemplo: "Creación", "Eliminación"
         $table->string('modelo');      // Ejemplo: "Evento", "Asistencia"
-        $table->text('detalles');      // Ejemplo: "El usuario eliminó el evento X"
+        $table->text('detalles');      // Ejemplo: "El usuarios eliminó el evento X"
         $table->string('ip')->nullable();
         $table->timestamps();
     });

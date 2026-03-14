@@ -1,102 +1,90 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            {{-- Texto adaptable al modo oscuro --}}
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-slate-200 leading-tight">
-                {{ __('Historial de Actividades (Bitácora)') }}
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 class="font-bold text-2xl text-gray-900 tracking-tight">
+                {{ __('Bitácora de Actividades') }}
             </h2>
-            <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                {{ $logs->total() }} Registros en total
-            </span>
+            <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+                <span class="text-sm font-semibold text-gray-600">
+                    {{ $logs->total() }} registros encontrados
+                </span>
+            </div>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            {{-- SECCIÓN DE FILTROS (Adaptada a Dark Mode) --}}
-            <div class="bg-white dark:bg-slate-900 p-4 mb-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 transition-colors">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-400">Buscar por Usuario</label>
-                        <input type="text" id="filterUsuario" class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Nombre del usuario...">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-400">Filtrar por Fecha</label>
-                        <input type="date" id="filterFecha" class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-400">Acción (Sema)</label>
-                        <select id="filterAccion" class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                            <option value="">Todas las acciones</option>
-                            <option value="Creación">Creación</option>
-                            <option value="Edición">Edición</option>
-                            <option value="Eliminación">Eliminación</option>
-                            <option value="Inicio de sesión">Inicio de sesión</option>
-                        </select>
-                    </div>
+            {{-- FILTROS MODERNOS --}}
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Buscar usuarios</label>
+                    <input type="text" id="filterusuarios" class="w-full rounded-xl border-gray-200 bg-white px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 transition-all shadow-sm" placeholder="Escribe un nombre...">
                 </div>
-                <div class="mt-4 flex justify-end">
-                    <button id="resetFilters" class="text-sm text-gray-500 dark:text-slate-500 hover:text-red-600 dark:hover:text-rose-400 font-medium transition-colors">Limpiar Filtros</button>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Fecha</label>
+                    <input type="date" id="filterFecha" class="w-full rounded-xl border-gray-200 bg-white px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 transition-all shadow-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Acción</label>
+                    <select id="filterAccion" class="w-full rounded-xl border-gray-200 bg-white px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 transition-all shadow-sm">
+                        <option value="">Todas</option>
+                        <option value="Creación">Creación</option>
+                        <option value="Edición">Edición</option>
+                        <option value="Eliminación">Eliminación</option>
+                        <option value="Inicio de sesión">Login</option>
+                    </select>
                 </div>
             </div>
 
-            {{-- TABLA DE BITÁCORA --}}
-            <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100 dark:border-slate-800">
-                <div class="p-6">
-                    <div class="overflow-x-auto">
-                        <table id="tablaBitacora" class="min-w-full table-auto border-collapse">
-                            <thead>
-                                <tr class="bg-[#f6bb54] text-white text-sm">
-                                    <th class="px-4 py-3 text-left rounded-tl-xl">Usuario</th>
-                                    <th class="px-4 py-3 text-left">Acción</th>
-                                    <th class="px-4 py-3 text-left">Descripción / Detalles</th>
-                                    <th class="px-4 py-3 text-left">Dirección IP</th>
-                                    <th class="px-4 py-3 text-left rounded-tr-xl">Fecha y Hora</th>
+            {{-- TABLA CON ESTILO MODERNO --}}
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table id="tablaBitacora" class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">usuarios</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Acción</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Detalles</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">IP</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Momento</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @forelse ($logs as $log)
+                                <tr class="hover:bg-blue-50/30 transition-colors">
+                                    <td class="px-6 py-5 font-semibold text-gray-700">{{ $log->user->name ?? 'Sistema' }}</td>
+                                    <td class="px-6 py-5">
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest
+                                            {{ $log->accion == 'Eliminación' ? 'bg-red-50 text-red-600' : '' }}
+                                            {{ $log->accion == 'Creación' ? 'bg-emerald-50 text-emerald-600' : '' }}
+                                            {{ $log->accion == 'Edición' ? 'bg-blue-50 text-blue-600' : '' }}
+                                            {{ $log->accion == 'Inicio de sesión' ? 'bg-amber-50 text-amber-600' : '' }}">
+                                            {{ $log->accion }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-5 text-gray-500 text-sm max-w-xs truncate">{{ $log->detalles }}</td>
+                                    <td class="px-6 py-5 text-gray-400 font-mono text-xs">{{ $log->ip }}</td>
+                                    <td class="px-6 py-5 text-gray-500 text-xs">{{ $log->created_at->diffForHumans() }}</td>
                                 </tr>
-                            </thead>
-                            <tbody class="text-sm divide-y divide-gray-200 dark:divide-slate-800">
-                                @forelse ($logs as $log)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <td class="px-4 py-4 font-medium text-gray-700 dark:text-slate-300">
-                                            {{ $log->user->name ?? 'Sistema' }}
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <span class="px-2 py-1 rounded-lg text-[10px] uppercase tracking-wider font-black
-                                                {{ $log->accion == 'Eliminación' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : '' }}
-                                                {{ $log->accion == 'Creación' ? 'bg-green-100 text-green-700 dark:bg-emerald-900/30 dark:text-emerald-400' : '' }}
-                                                {{ $log->accion == 'Edición' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : '' }}
-                                                {{ $log->accion == 'Inicio de sesión' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : '' }}
-                                            ">
-                                                {{ $log->accion }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-600 dark:text-slate-400 italic">
-                                            {{ $log->detalles }}
-                                        </td>
-                                        <td class="px-4 py-4 font-mono text-xs text-gray-500 dark:text-slate-500">
-                                            {{ $log->ip }}
-                                        </td>
-                                        <td class="px-4 py-4 text-gray-500 dark:text-slate-500">
-                                            {{ $log->created_at->format('d/m/Y H:i:s') }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-slate-500">
-                                            No hay registros de actividad disponibles.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr><td colspan="5" class="px-6 py-10 text-center text-gray-400">Sin registros.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- SCRIPTS (Mantenidos) --}}
+
+</x-app-layout>
+{{-- Scripts y Estilos --}}
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -112,17 +100,17 @@
             "order": [[4, "desc"]]
         });
 
-        // Filtro por Usuario
+
         $('#filterUsuario').on('keyup', function() {
             table.column(0).search(this.value).draw();
         });
 
-        // Filtro por Acción
+
         $('#filterAccion').on('change', function() {
             table.column(1).search(this.value).draw();
         });
 
-        // Filtro por Fecha
+
         $('#filterFecha').on('change', function() {
             if(this.value) {
                 var date = new Date(this.value);
@@ -135,8 +123,6 @@
                 table.column(4).search('').draw();
             }
         });
-
-        // Limpiar Filtros
         $('#resetFilters').on('click', function() {
             $('#filterUsuario').val('');
             $('#filterFecha').val('');
@@ -145,4 +131,3 @@
         });
     });
     </script>
-</x-app-layout>

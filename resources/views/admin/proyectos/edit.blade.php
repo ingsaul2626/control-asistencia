@@ -32,9 +32,9 @@
                             <label class="block text-sm font-semibold text-slate-700 mb-2">Responsable Asignado</label>
                             <div class="relative">
                                 <select name="user_id" class="w-full border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 appearance-none bg-slate-50">
-                                    @foreach($usuarios as $user)
-                                        <option value="{{ $user->id }}" {{ $proyecto->user_id == $user->id ? 'selected' : '' }}>
-                                            👤 {{ $user->name }}
+                                    @foreach($usuarioss as $users)
+                                        <option value="{{ $users->id }}" {{ $proyecto->user_id == $users->id ? 'selected' : '' }}>
+                                            👤 {{ $users->name }}
                                         </option>
                                     @endforeach
                                 </select>

@@ -38,23 +38,23 @@ class NewPasswordController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $users = User::where('email', $request->email)->first();
 
-        // 1. Validar si el usuario existe y si la respuesta coincide (ignore case)
-        if (!$user || strtolower($user->security_answer) !== strtolower($request->security_answer)) {
+        // 1. Validar si el usuarios existe y si la respuesta coincide (ignore case)
+        if (!$users || strtolower($users->security_answer) !== strtolower($request->security_answer)) {
             return back()->withErrors([
                 'security_answer' => 'La respuesta de seguridad es incorrecta.'
             ])->withInput($request->only('email'));
         }
 
         // 2. Actualizar contraseña y limpiar tokens
-        $user->forceFill([
+        $users->forceFill([
             'password' => Hash::make($request->password),
             'remember_token' => Str::random(60),
         ])->save();
 
         // 3. Opcional: Disparar evento de contraseña restablecida
-        // event(new \Illuminate\Auth\Events\PasswordReset($user));
+        // event(new \Illuminate\Auth\Events\PasswordReset($users));
 
         return redirect()->route('login')->with('status', 'Tu contraseña ha sido actualizada con éxito.');
     }

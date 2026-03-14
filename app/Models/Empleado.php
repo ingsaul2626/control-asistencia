@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Empleado extends Model
+class usuarios extends Model
 {
     use HasFactory;
 
@@ -15,10 +15,11 @@ class Empleado extends Model
         'cedula',
         'nombre_apellido',
         'tipo_trabajador',
-        'seccion'
+        'seccion',
+        'status' // Campo nuevo para el estado del usuarios
     ];
 
-    // Un empleado puede tener muchos registros de asistencia
+    // Un usuarios puede tener muchos registros de asistencia
     public function asistencias()
     {
         return $this->hasMany(Asistencia::class);
@@ -32,8 +33,8 @@ class Empleado extends Model
 
     public function show($id)
 {
-    // Al haber añadido el "use App\Models\Empleado" arriba, esto funcionará:
-    $empleado = Empleado::with('ultimaAsistencia')->findOrFail($id);
-    return view('admin.empleados.show', compact('empleado'));
+    // Al haber añadido el "use App\Models\usuarios" arriba, esto funcionará:
+   $usuarios = usuarios::with('ultimaAsistencia')->findOrFail($id);
+    return view('admin.usuarios.show', compact('usuarios'));
 }
 }

@@ -16,12 +16,8 @@
                     </x-nav-link>
 
                     @if(auth()->user()->role === 'admin')
-                        <x-nav-link :href="route('admin.admin.panelControl')" :active="request()->routeIs('admin.admin.panelControl')" class="text-[11px] font-black uppercase tracking-[0.15em]">
+                        <x-nav-link :href="route('admin.panelControl')" :active="request()->routeIs('admin.panelControl.*')" class="text-[11px] font-black uppercase tracking-[0.15em]">
                             {{ __('Panel') }}
-                        </x-nav-link>
-
-                        <x-nav-link :href="route('admin.empleados.index')" :active="request()->routeIs('admin.empleados.*')" class="text-[11px] font-black uppercase tracking-[0.15em]">
-                            {{ __('Personal') }}
                         </x-nav-link>
 
                         <x-nav-link :href="route('admin.asistencias.index')" :active="request()->routeIs('admin.asistencias.*')" class="text-[11px] font-black uppercase tracking-[0.15em]">

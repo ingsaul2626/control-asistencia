@@ -2,30 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Asistencia;
+use App\Models\User as Usuarios;
 
 class DashboardController extends Controller
 {
    public function index()
-{
-    $totalTrabajadores = Empleado::count();
-    $asistenciasHoy = Asistencia::whereDate('created_at', now()->today())->count();
-    $asistenciasHoy = Asistencia::whereDate('created_at', today())->get();
-    $conteoPresentes = $asistenciasHoy->where('status', 'presente')->count();
-    $faltasHoy = $totalTrabajadores - $asistenciasHoy;
-    $conteoFaltasMarcadas = $asistenciasHoy->where('status', 'ausente')->count();
-    $totalEmpleados = Empleado::count();
-    $conteoSinRegistro = $totalEmpleados - $asistenciasHoy->count();
-    $empleadosAusentes = Empleado::whereNotIn('id', $asistenciasHoy->where('status', 'presente')->pluck('empleado_id'))->get();
-    return view('dashboard', compact('asistenciasHoy', 'faltasHoy', 'totalTrabajadores'));
-    $hoy = now()->toDateString();
-    $asistentesIds = Asistencia::where('fecha', $hoy)
-    ->where('status', 'presente')
-    ->pluck('empleado_id');
-    $empleadosAusentes = Empleado::whereNotIn('id', $asistentesIds)->get();
-    $conteoPresentes = $asistentesIds->count();
-    $conteoAusentes = $empleadosAusentes->count();
-}
+    {
+        $hoy = now()->toDateString();
 
+    // 1. Inicializamos todas las variables necesarias
+
+    $totalUsuarios = Usuarios::count();
+    $asistenciasHoy = Asistencia::whereDate('created_at', $hoy)->get();
+
+    // 2. Definimos las variables con valores por defecto para evitar errores
+    $conteoPresentes = $asistenciasHoy->where('status', 'presente')->count();
+    $conteoFaltasMarcadas = $asistenciasHoy->where('status', 'ausente')->count();
+
+    // 3. Aseguramos que $usuariosAusentes SIEMPRE exista
+    $asistentesIds = $asistenciasHoy->where('status', 'presente')->pluck('usuarios_id');
+    $usuariosAusentes = Usuarios::whereNotIn('id', $asistentesIds)->get();
+
+    $conteoAusentes = $usuariosAusentes->count();
+    $faltasHoy = $totalUsuarios - $conteoPresentes;
+    $conteoSinRegistro = $totalUsuarios - $asistenciasHoy->count();
+
+    $porcentajeAsistencias = ($totalUsuarios > 0)
+        ? round(($conteoPresentes / $totalUsuarios) * 100, 2)
+        : 0;
+    $conteoPendientes = $totalUsuarios - ($conteoPresentes + $conteoAusentes);
+
+    // 4. Compact enviará todas, incluso si alguna está vacía
+   return view('dashboard', compact(
+        'asistenciasHoy',
+        'faltasHoy',
+        'totalUsuarios', // <--- CAMBIA 'totalusuarios' POR ESTO
+        'conteoPresentes',
+        'conteoFaltasMarcadas',
+        'conteoSinRegistro',
+        'usuariosAusentes',
+        'conteoAusentes',
+        'porcentajeAsistencias',
+        'conteoPendientes'
+    ));
+}
 }

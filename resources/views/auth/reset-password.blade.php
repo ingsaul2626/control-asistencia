@@ -11,8 +11,8 @@
         <input type="hidden" name="email" value="{{ $request->email }}">
 
         @php
-            // Obtenemos el usuario de forma segura
-            $user = \App\Models\User::where('email', $request->email)->first();
+            // Obtenemos el usuarios de forma segura
+            $users = \App\Models\User::where('email', $request->email)->first();
 
             // Diccionario de preguntas (Asegúrate de que coincidan con los keys de tu DB)
             $preguntas = [
@@ -22,8 +22,8 @@
                 'color'   => '¿Cuál es tu color favorito?',
             ];
 
-            // Si el usuario no tiene pregunta asignada, mostramos un texto genérico
-            $preguntaTexto = $preguntas[$user->security_question ?? ''] ?? 'Por favor, responde a tu pregunta de seguridad configurada.';
+            // Si el usuarios no tiene pregunta asignada, mostramos un texto genérico
+            $preguntaTexto = $preguntas[$users->security_question ?? ''] ?? 'Por favor, responde a tu pregunta de seguridad configurada.';
         @endphp
 
         <div class="p-5 bg-indigo-50 border border-indigo-100 rounded-2xl shadow-sm">

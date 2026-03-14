@@ -14,7 +14,7 @@ return new class extends Migration
     Schema::table('asistencias', function (Blueprint $table) {
         // Añadimos lo que falta. Usamos ifNotExists para evitar errores.
         if (!Schema::hasColumn('asistencias', 'fecha')) {
-            $table->date('fecha')->nullable()->after('empleado_id');
+            $table->date('fecha')->nullable()->after('usuarios_id');
         }
         if (!Schema::hasColumn('asistencias', 'observaciones')) {
             $table->text('observaciones')->nullable()->after('hora_salida');

@@ -79,7 +79,7 @@
                     </div>
                     <div>
                         <span class="block text-[9px] font-bold text-indigo-400 uppercase tracking-[0.2em]">Responsable Asignado</span>
-                        <h3 class="text-lg font-bold tracking-tight">{{ $evento->user->name ?? 'Usuario no encontrado' }}</h3>
+                        <h3 class="text-lg font-bold tracking-tight">{{ $evento->user->name ?? 'usuarios no encontrado' }}</h3>
                         <p class="text-[10px] text-slate-400 font-medium italic">{{ $evento->user->cargo ?? 'Ingeniero de Operaciones' }}</p>
                     </div>
                 </div>

@@ -52,7 +52,7 @@ class BitacoraController extends Controller
         // 2. CONEXIÓN: Creas la notificación/actividad automáticamente
         Actividad::create([
             'titulo' => 'Nueva entrada en Bitácora',
-            'mensaje' => 'El usuario ' . Auth::user()->name . ' registró: ' . $descripcion,
+            'mensaje' => 'El usuarios ' . Auth::user()->name . ' registró: ' . $descripcion,
             'user_id' => Auth::id(),
             'leido' => false,
         ]);

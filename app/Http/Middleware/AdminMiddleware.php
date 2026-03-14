@@ -19,7 +19,7 @@ class AdminMiddleware
     $response->headers->set('bypass-tunnel-reminder', 'true');
     return $response;
 
-    // Si el usuario es admin, déjalo pasar
+    // Si el usuarios es admin, déjalo pasar
     if (auth()->check() && auth()->user()->role === 'admin') {
         return $next($request);
     }

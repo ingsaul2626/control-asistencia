@@ -9,17 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
+    public function up(): void
 {
-    Schema::table('eventos', function (Blueprint $table) {
-        $table->string('archivo')->nullable()->after('imagen');
+    Schema::table('users', function (Blueprint $table) {
+        $table->softDeletes(); // Esto creará la columna deleted_at
     });
 }
 
 public function down(): void
 {
-    Schema::table('eventos', function (Blueprint $table) {
-        $table->dropColumn('archivo');
+    Schema::table('users', function (Blueprint $table) {
+        $table->dropSoftDeletes();
     });
 }
 };

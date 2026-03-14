@@ -15,44 +15,44 @@ class EmailVerificationTest extends TestCase
 
     public function test_email_verification_screen_can_be_rendered(): void
     {
-        $user = User::factory()->unverified()->create();
+        $users = User::factory()->unverified()->create();
 
-        $response = $this->actingAs($user)->get('/verify-email');
+        $response = $this->actingAs($users)->get('/verify-email');
 
         $response->assertStatus(200);
     }
 
     public function test_email_can_be_verified(): void
     {
-        $user = User::factory()->unverified()->create();
+        $users = User::factory()->unverified()->create();
 
         Event::fake();
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1($user->email)]
+            ['id' => $users->id, 'hash' => sha1($users->email)]
         );
 
-        $response = $this->actingAs($user)->get($verificationUrl);
+        $response = $this->actingAs($users)->get($verificationUrl);
 
         Event::assertDispatched(Verified::class);
-        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $this->assertTrue($users->fresh()->hasVerifiedEmail());
         $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
     }
 
     public function test_email_is_not_verified_with_invalid_hash(): void
     {
-        $user = User::factory()->unverified()->create();
+        $users = User::factory()->unverified()->create();
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1('wrong-email')]
+            ['id' => $users->id, 'hash' => sha1('wrong-email')]
         );
 
-        $this->actingAs($user)->get($verificationUrl);
+        $this->actingAs($users)->get($verificationUrl);
 
-        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+        $this->assertFalse($users->fresh()->hasVerifiedEmail());
     }
 }
