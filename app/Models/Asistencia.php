@@ -11,11 +11,12 @@ class Asistencia extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', // Campo centralizado
-        'fecha',
-        'hora_entrada',
-        'hora_salida',
+        'user_id',
         'status',
+        'hora_entrada_admin',
+        'hora_entrada_real',
+        'hora_salida',
+        'fecha',
         'observaciones'
     ];
         protected $casts = [

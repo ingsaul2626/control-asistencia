@@ -28,13 +28,13 @@ class UserController extends Controller
         $diasAsistidos = $historialAsistencias->where('status', 'finalizado')->count();
         $misProyectos = Proyecto::where('user_id', $usersId)->get();
 
-        return view('user.dashboard', compact('misProyectos', 'historialAsistencias', 'totalHorasMes', 'diasAsistidos'));
+        return view('user.asignaciones', compact('misProyectos', 'historialAsistencias', 'totalHorasMes', 'diasAsistidos'));
     }
 
     public function myProjects()
     {
         $misProyectos = Proyecto::where('user_id', Auth::id())->get();
-        return view('user.dashboard', compact('misProyectos'));
+        return view('user.asignaciones', compact('misProyectos'));
     }
 
     public function store(Request $request)

@@ -43,10 +43,7 @@ Route::middleware(['auth', 'verified', 'checkUserApproved'])->group(function () 
 })->name('waiting-approval');
 });
 
-    Route::post('/asistencias/aceptar', [AsistenciaController::class, 'aceptarHorario'])->name('usuarios.asistencias.aceptar');
-    Route::post('/asistencias/salida', [AsistenciaController::class, 'marcarSalidausuarios'])->name('usuarios.asistencias.salida');
-    Route::post('/asistencias/marcar-auto', [AsistenciaController::class, 'marcarSalidaAuto'])->name('asistencias.marcar-salida-auto');
-    Route::post('/asistencias/falta', [AsistenciaController::class, 'marcarFalta'])->name('asistencias.marcar-falta');
+
 
     Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
     Route::get('/bitacora/export', [BitacoraController::class, 'export'])->name('bitacora.export');
@@ -100,8 +97,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // 4. PANEL usuarios
 Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
-    Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+
+    Route::get('/asistencias', [AsistenciaController::class, 'index'])->name('asistencia.index');
+
+    // Rutas para ver proyectos asignados y reportar avances
+    Route::post('/asistencia/{id}/aceptar', [AsistenciaController::class, 'aceptarAsistencia'])->name('user.asistencia.aceptar');
+    Route::post('/asistencia/{id}/salida', [AsistenciaController::class, 'marcarSalida'])->name('user.asistencia.marcarSalida');
+
     Route::get('/mis-asignaciones', [UserController::class, 'myProjects'])->name('asignaciones');
+
     Route::get('/mis-tareas', [UserController::class, 'myProjects'])->name('projects');
     Route::post('/reportar/{id}', [UserController::class, 'updateReport'])->name('reportar');
     Route::get('/descargar/{id}', [UserController::class, 'descargar'])->name('descargar');

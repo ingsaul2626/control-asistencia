@@ -11,9 +11,9 @@ class AdminController extends Controller
 {
  public function index()
 {
-    $totalusuarios = \App\Models\User::count();
+    $totalUsuarios = \App\Models\User::count();
     $hoy = now()->toDateString();
-    $totalusuarios = \App\Models\User::where('role', 'user')->count();
+    $totalUsuarios = \App\Models\User::where('role', 'user')->count();
     $asistenciasHoy = \App\Models\Asistencia::whereDate('fecha', $hoy)->get();
     $usuariosAusentes = \App\Models\User::where('status', 'ausente')->get();
     $misProyectos = \App\Models\Proyecto::where('user_id', \Illuminate\Support\Facades\Auth::id())->get();
@@ -27,8 +27,8 @@ class AdminController extends Controller
                         ->whereNotIn('id', $idConRegistro)
                         ->count();
 
-    $porcentajeAsistencias = $totalusuarios > 0 ? round(($conteoPresentes / $totalusuarios) * 100) : 0;
-    $usuariossAusentes = \App\Models\User::whereIn('id', $asistenciasHoy->where('status', 'ausente')->pluck('user_id'))->get();
+    $porcentajeAsistencias = $totalUsuarios > 0 ? round(($conteoPresentes / $totalUsuarios) * 100) : 0;
+    $usuariosAusentes = \App\Models\User::whereIn('id', $asistenciasHoy->where('status', 'ausente')->pluck('user_id'))->get();
 
     $proyectos = Proyecto::query()
     ->whereNotNull('user_id') // Filtramos por el usuario asignado
@@ -41,7 +41,7 @@ class AdminController extends Controller
 
     // NOTA: Aquí quitamos $todosLosEventos porque el inicio no es para asignar proyectos
    return view('dashboard', compact(
-        'totalusuarios',
+        'totalUsuarios',
         'conteoPresentes',
         'conteoAusentes',
         'conteoPendientes',

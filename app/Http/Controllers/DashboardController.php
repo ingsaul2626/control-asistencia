@@ -37,7 +37,7 @@ class DashboardController extends Controller
    return view('dashboard', compact(
         'asistenciasHoy',
         'faltasHoy',
-        'totalUsuarios', // <--- CAMBIA 'totalusuarios' POR ESTO
+        'totalUsuarios',
         'conteoPresentes',
         'conteoFaltasMarcadas',
         'conteoSinRegistro',

@@ -70,37 +70,30 @@ class AsistenciaController extends Controller
      * ACCIÓN DEL usuarios: Acepta el horario.
      * Estatus resultante: 'en_progreso' (Punto verde animado para el admin).
      */
-    public function aceptarHorario(Request $request)
-    {
-        $asistencia = Asistencia::where('user_id', Auth::id())
-                                ->whereDate('fecha', now()->toDateString())
-                                ->firstOrFail();
+    public function aceptarAsistencia($id)
+{
+    $asistencia = Asistencia::findOrFail($id);
 
-        $asistencia->update([
-            'status' => 'en_progreso',
-            'observaciones' => ($asistencia->observaciones ? $asistencia->observaciones . " | " : "") . "Turno iniciado por usuarios."
-        ]);
+    // El usuario acepta y fijamos la hora real de entrada
+    $asistencia->update([
+        'status' => 'aceptado',
+        'hora_entrada_real' => now()->format('H:i:s'),
+    ]);
 
-        return back()->with('success', '¡Jornada en progreso! Buen trabajo.');
-    }
+    return back()->with('success', '¡Has aceptado tu jornada correctamente!');
+}
 
-    /**
-     * ACCIÓN DEL usuarios: Marca salida.
-     * Estatus resultante: 'finalizado' (Punto verde/azul fijo).
-     */
-    public function marcarSalidausuarios(Request $request)
-    {
-        $asistencia = Asistencia::where('user_id', Auth::id())
-                                ->whereDate('fecha', now()->toDateString())
-                                ->firstOrFail();
+public function marcarSalida($id)
+{
+    $asistencia = Asistencia::findOrFail($id);
 
-        $asistencia->update([
-            'hora_salida' => now()->format('H:i:s'),
-            'status'      => 'finalizado'
-        ]);
+    $asistencia->update([
+        'status' => 'finalizado',
+        'hora_salida' => now()->format('H:i:s'),
+    ]);
 
-        return back()->with('success', 'Jornada finalizada correctamente.');
-    }
+    return back()->with('success', 'Jornada finalizada con éxito.');
+}
 
     /**
      * ACCIÓN RÁPIDA: Marcar falta desde el Admin.
