@@ -108,9 +108,12 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
 
     Route::get('/mis-asignaciones', [UserController::class, 'myProjects'])->name('asignaciones');
 
-    Route::get('/mis-tareas', [UserController::class, 'myProjects'])->name('projects');
-    Route::post('/reportar/{id}', [UserController::class, 'updateReport'])->name('reportar');
-    Route::get('/descargar/{id}', [UserController::class, 'descargar'])->name('descargar');
+    Route::put('/proyectos/{id}/reporte', [App\Http\Controllers\UserController::class, 'updateReport'])->name('proyectos.updateReport');
+    Route::get('/proyectos/{id}/finalizar', [App\Http\Controllers\UserController::class, 'finalizarProyecto'])->name('proyectos.finalizar');
+
+        
+    Route::get('/proyectos/{id}/descargar/{tipo}', [App\Http\Controllers\UserController::class, 'descargarArchivo'])
+         ->name('proyectos.descargar');
 });
 
 Route::get('/proyecto/{id}', [ProyectoController::class, 'show'])->name('eventos.show');

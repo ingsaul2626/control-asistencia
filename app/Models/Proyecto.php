@@ -20,7 +20,7 @@ class Proyecto extends Model
         'imagen',
         'reporte_trabajador',
         'tipo',
-        'activo', // Asegúrate de incluir campos nuevos si los agregaste
+        'activo', 
     ];
 
     /**

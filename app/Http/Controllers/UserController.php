@@ -33,8 +33,44 @@ class UserController extends Controller
 
     public function myProjects()
     {
-        $misProyectos = Proyecto::where('user_id', Auth::id())->get();
-        return view('user.asignaciones', compact('misProyectos'));
+        $userId = Auth::id();
+
+        $misProyectos = \App\Models\Proyecto::where('user_id', $userId)->get();
+       
+        $asistencia_hoy = \App\Models\Asistencia::where('user_id', $userId)
+                        ->whereDate('fecha', now()->toDateString())
+                        ->first();
+
+        return view('user.asignaciones', compact('misProyectos', 'asistencia_hoy'));
+        
+    }
+    
+    public function descargarArchivo($id, $tipo)
+    {
+        // 1. Buscamos el proyecto
+        $proyecto = \App\Models\Proyecto::findOrFail($id);
+
+        // 2. Determinamos qué campo queremos descargar ('archivo' o 'imagen')
+        $path = ($tipo === 'pdf') ? $proyecto->archivo : $proyecto->imagen;
+
+        // 3. Verificamos que el archivo realmente exista en el almacenamiento
+        if (!$path || !\Illuminate\Support\Facades\Storage::exists($path)) {
+            return back()->with('error', 'El archivo no existe.');
+        }
+
+        // 4. Retornamos la respuesta de descarga
+        return \Illuminate\Support\Facades\Storage::download($path);
+    }
+
+    public function finalizarProyecto($id)
+    {
+        $proyecto = \App\Models\Proyecto::where('id', $id)
+                        ->where('user_id', auth()->id())
+                        ->firstOrFail();
+
+        $proyecto->update(['activo' => 0]); // O el campo que uses para marcar como finalizado
+
+        return back()->with('success', '¡Proyecto marcado como finalizado!');
     }
 
     public function store(Request $request)
@@ -60,7 +96,7 @@ class UserController extends Controller
             'password'        => Hash::make($request->password),
             'role'            => $request->role,
             'tipo_trabajador' => $request->tipo_trabajador,
-            'telefono'        => $request->telefono, // ¿Estás recibiendo esto del form?
+            'telefono'        => $request->telefono, 
             'cargo'           => $request->cargo,
         ]);
 
