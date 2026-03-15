@@ -209,8 +209,9 @@ public function toggleEstado(Request $request, $id)
         $proyecto->activo = !$proyecto->activo;
     }
 
-    // 4. Guardamos los cambios
+        // 4. Guardamos los cambios
     $proyecto->save();
+    
 
     // 5. Retornamos con un mensaje opcional
     return back()->with('success', 'Proyecto actualizado exitosamente.');
