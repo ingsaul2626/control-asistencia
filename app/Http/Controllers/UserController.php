@@ -89,8 +89,8 @@ class UserController extends Controller
     public function updateReport(Request $request, $id)
     {
         $request->validate(['reporte_trabajador' => 'required|string|max:1000']);
-        $evento = Proyecto::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-        $evento->update(['reporte_trabajador' => $request->reporte_trabajador]);
+        $misProyectos = Proyecto::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $misProyectos->update(['reporte_trabajador' => $request->reporte_trabajador]);
         return back()->with('success', 'Reporte enviado al administrador.');
     }
 

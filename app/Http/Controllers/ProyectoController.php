@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Proyecto; // Usamos el modelo unificado
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -42,7 +43,23 @@ class ProyectoController extends Controller
 
         $proyecto = new \App\Models\Proyecto($request->except(['imagen', 'archivo_pdf']));
 
+
+        if ($request->hasFile('imagen')) {
+        $proyecto->imagen = $request->file('imagen')->store('proyectos/imagenes', 'public');
+    }
+
+    // Procesar PDF
+    if ($request->hasFile('archivo_pdf')) {
+        $proyecto->archivo_pdf = $request->file('archivo_pdf')->store('proyectos/pdfs', 'public');
+    }
+
+    $proyecto->save();
+
+    return redirect()->route('admin.proyectos.index')
+                     ->with('success', 'Proyecto creado con éxito.');
+
     // 3. Procesar archivo de IMAGEN (guardar una sola vez)
+
     if ($request->hasFile('imagen')) {
         // Guardamos en storage/app/public/proyectos/imagenes
         $proyecto->imagen = $request->file('imagen')->store('proyectos/imagenes', 'public');
@@ -148,4 +165,18 @@ class ProyectoController extends Controller
 
         return view('admin.proyectos.finalizados', compact('proyectosCulminados'));
     }
+
+
+    public function misAsignaciones()
+{
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+
+    $misProyectos = \App\Models\Proyecto::where('user_id', Auth::id())
+                    ->orderBy('updated_at', 'desc')
+                    ->get();
+
+    return view('user.asignaciones', compact('misProyectos'));
+}
 }

@@ -79,7 +79,9 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</x-app-layout>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Animación de números corregida para recibir los valores del backend
@@ -162,4 +164,3 @@
         .scrollbar-thin::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 20px; }
         .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
     </style>
-</x-app-layout>

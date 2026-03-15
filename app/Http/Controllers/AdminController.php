@@ -9,48 +9,56 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
+
  public function index()
 {
-    $totalUsuarios = \App\Models\User::count();
     $hoy = now()->toDateString();
+
+    // 1. Estadísticas básicas
     $totalUsuarios = \App\Models\User::where('role', 'user')->count();
     $asistenciasHoy = \App\Models\Asistencia::whereDate('fecha', $hoy)->get();
-    $usuariosAusentes = \App\Models\User::where('status', 'ausente')->get();
-    $misProyectos = \App\Models\Proyecto::where('user_id', \Illuminate\Support\Facades\Auth::id())->get();
-    $usuarios = \App\Models\User::whereNull('deleted_at')->get();
 
+    // 2. Conteo de Estados
     $conteoPresentes = $asistenciasHoy->whereIn('status', ['presente', 'en_progreso', 'finalizado'])->count();
     $conteoAusentes = $asistenciasHoy->where('status', 'ausente')->count();
 
-    $idConRegistro = $asistenciasHoy->pluck('user_id');
-    $conteoPendientes = \App\Models\User::where('role', 'user')
-                        ->whereNotIn('id', $idConRegistro)
-                        ->count();
+    // 3. Cálculo de Pendientes: Usuarios 'user' que no tienen NINGÚN registro hoy
+    $idsConCualquierRegistro = $asistenciasHoy->pluck('user_id');
+    $usuariosPendientes = \App\Models\User::where('role', 'user')
+                            ->whereNotIn('id', $idsConCualquierRegistro)
+                            ->get();
+    $conteoPendientes = $usuariosPendientes->count();
 
-    $porcentajeAsistencias = $totalUsuarios > 0 ? round(($conteoPresentes / $totalUsuarios) * 100) : 0;
-    $usuariosAusentes = \App\Models\User::whereIn('id', $asistenciasHoy->where('status', 'ausente')->pluck('user_id'))->get();
+    // 4. Lista específica de Usuarios Ausentes (los que tienen el status 'ausente' en la tabla asistencias)
+    $usuariosAusentes = \App\Models\User::whereIn('id',
+        $asistenciasHoy->where('status', 'ausente')->pluck('user_id')
+    )->get();
 
-    $proyectos = Proyecto::query()
-    ->whereNotNull('user_id') // Filtramos por el usuario asignado
-    ->where('user_id', '<>', '') // Aseguramos que no esté vacío
-    ->orderBy('updated_at', 'desc')
-    ->take(10)
-    ->get();
+    // 5. Porcentaje (evitando división por cero)
+    $porcentajeAsistencias = $totalUsuarios > 0
+        ? round(($conteoPresentes / $totalUsuarios) * 100)
+        : 0;
 
+    // 6. Proyectos recientes
+    $proyectos = \App\Models\Proyecto::query()
+        ->whereNotNull('user_id')
+        ->orderBy('updated_at', 'desc')
+        ->take(10)
+        ->get();
 
-
-    // NOTA: Aquí quitamos $todosLosEventos porque el inicio no es para asignar proyectos
-   return view('dashboard', compact(
+    return view('dashboard', compact(
         'totalUsuarios',
         'conteoPresentes',
         'conteoAusentes',
         'conteoPendientes',
         'porcentajeAsistencias',
         'usuariosAusentes',
-
+        'usuariosPendientes',
+        'proyectos'
     ));
-
 }
+
+
     // --- MANTENEMOS TUS FUNCIONES DE PROYECTOS INTACTAS ---
 
     public function assignWorker(Request $request)

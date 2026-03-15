@@ -5,108 +5,111 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Asistencia;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AsistenciaController extends Controller
 {
+    // ... index se mantiene igual ...
     public function index(Request $request)
-    {
-        $fecha = date('Y-m-d');
-        $fecha = $request->get('fecha', now()->toDateString());
-        $users = \App\Models\User::where('role', 'user')->get();
-        $asistenciasHoy = \App\Models\Asistencia::where('fecha', $fecha)->get()->keyBy('user_id');
-        return view('asistencias.index', compact('users', 'fecha', 'asistenciasHoy'));
+{
+    // 1. Obtener la fecha del request o usar la de hoy
+    $fecha = $request->get('fecha', now()->toDateString());
+
+    // 2. Obtener los usuarios (asegúrate de tener el modelo User importado)
+    $User = \App\Models\User::where('role', 'user')->get();
+
+    // 3. Obtener asistencias de esa fecha
+    $asistenciasHoy = \App\Models\Asistencia::where('fecha', $fecha)->get()->keyBy('user_id');
+
+    // 4. Retornar la vista pasando los datos
+    return view('asistencias.index', compact('User', 'fecha', 'asistenciasHoy'));
 }
-
-
     /**
-     * ACCIÓN DEL ADMIN: Asigna horario inicial.
-     * Estatus resultante: 'finalizado' (pero sin hora de salida, lo que indica "esperando usuarios").
+     * ACCIÓN DEL ADMIN: Crea la jornada.
+     * Ahora el estado por defecto es 'pendiente'.
      */
     public function store(Request $request)
     {
         $request->validate([
             'user_id'      => 'required|exists:users,id',
             'hora_entrada' => 'nullable',
-            'hora_salida'  => 'nullable',
             'fecha'        => 'nullable|date',
         ]);
 
         $fechaFinal = $request->fecha ?: now()->toDateString();
-        $asistencia = Asistencia::where('user_id', $request->user_id)
-                                ->whereDate('fecha', $fechaFinal)
-                                ->first();
 
-        // Determinamos el estatus basado en el botón de Falta
-        $status = ($request->es_falta == "1") ? 'ausente' : 'finalizado';
-
+        // El admin crea la jornada, pero el status es 'pendiente'
+        // para que el usuario sea quien la acepte y empiece a trabajar.
         $data = [
             'user_id'       => $request->user_id,
             'fecha'         => $fechaFinal,
-            'status'        => $status,
+            'status'        => ($request->es_falta == "1") ? 'ausente' : 'pendiente',
             'observaciones' => $request->observaciones,
-            'hora_entrada'  => $request->hora_entrada ?: ($asistencia->hora_entrada ?? now()->format('H:i')),
-            'hora_salida'   => $request->hora_salida ?: ($asistencia->hora_salida ?? null),
+            'hora_entrada'  => $request->hora_entrada,
+            'hora_salida'   => null, // La salida la marca el usuario al finalizar
         ];
 
-        if ($status === 'ausente') {
-            $data['hora_entrada'] = null;
-            $data['hora_salida'] = null;
-        }
+        Asistencia::updateOrCreate(
+            ['user_id' => $request->user_id, 'fecha' => $fechaFinal],
+            $data
+        );
 
-        if ($asistencia) {
-            $asistencia->update($data);
-            $msg = "Registro actualizado.";
-        } else {
-            Asistencia::create($data);
-            $msg = "Horario asignado.";
-        }
-
-        return back()->with('success', $msg);
+        return back()->with('success', 'Jornada planificada correctamente.');
     }
 
     /**
-     * ACCIÓN DEL usuarios: Acepta el horario.
-     * Estatus resultante: 'en_progreso' (Punto verde animado para el admin).
+     * ACCIÓN DEL USUARIO: Acepta la jornada (Inicio real)
      */
     public function aceptarAsistencia($id)
-{
-    $asistencia = Asistencia::findOrFail($id);
+    {
+        $asistencia = Asistencia::findOrFail($id);
 
-    // El usuario acepta y fijamos la hora real de entrada
-    $asistencia->update([
-        'status' => 'aceptado',
-        'hora_entrada_real' => now()->format('H:i:s'),
-    ]);
+        $asistencia->update([
+            'status'            => 'aceptado',
+            'hora_entrada_real' => now()->format('H:i:s'),
+        ]);
 
-    return back()->with('success', '¡Has aceptado tu jornada correctamente!');
-}
-
-public function marcarSalida($id)
-{
-    $asistencia = Asistencia::findOrFail($id);
-
-    $asistencia->update([
-        'status' => 'finalizado',
-        'hora_salida' => now()->format('H:i:s'),
-    ]);
-
-    return back()->with('success', 'Jornada finalizada con éxito.');
-}
+        return back()->with('success', '¡Jornada iniciada con éxito!');
+    }
 
     /**
-     * ACCIÓN RÁPIDA: Marcar falta desde el Admin.
+     * ACCIÓN DEL USUARIO: Finaliza su jornada
      */
-    public function marcarFalta(Request $request)
+    public function marcarSalida($id)
     {
-        $request->validate(['user_id' => 'required|exists:users,id']);
+        $asistencia = Asistencia::findOrFail($id);
 
-        Asistencia::updateOrCreate(
-            ['user_id' => $request->user_id, 'fecha' => now()->toDateString()],
-            ['status' => 'ausente', 'hora_entrada' => null, 'hora_salida' => null]
+        $asistencia->update([
+            'status'      => 'finalizado',
+            'hora_salida' => now()->format('H:i:s'),
+        ]);
+
+        return back()->with('success', 'Jornada finalizada correctamente.');
+    }
+
+
+    /**
+     * ACCIÓN DEL ADMIN: Marca a un usuario como ausente manualmente.
+     */
+    public function marcarFalta($id)
+    {
+        // 1. Buscamos al usuario
+        $usuario = \App\Models\User::findOrFail($id);
+        $fechaHoy = now()->toDateString();
+
+        // 2. Creamos o actualizamos el registro como 'ausente'
+        \App\Models\Asistencia::updateOrCreate(
+            [
+                'user_id' => $usuario->id,
+                'fecha'   => $fechaHoy
+            ],
+            [
+                'status'        => 'ausente',
+                'observaciones' => 'Marcado como falta por el administrador',
+                'hora_entrada'  => null
+            ]
         );
 
-        return back()->with('success', 'Se ha registrado la falta.');
+        return back()->with('success', 'Falta registrada para ' . $usuario->name);
     }
 }

@@ -12,53 +12,42 @@
     <div class="py-10 bg-slate-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <div class="mb-8 p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
+            {{-- CABECERA E INFO --}}
+         <div class="mb-8 p-8 bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 relative overflow-hidden group">
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px] transition-all group-hover:bg-indigo-500/30"></div>
 
-                <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="flex flex-col">
-                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Operador</span>
-                        <span class="text-emerald-400 font-mono text-sm uppercase tracking-tighter">{{ auth()->user()->name }}</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Sincronización</span>
-                        <span class="text-slate-300 font-mono text-sm tracking-tighter">{{ now()->format('d M, Y H:i:s') }}</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Filtro Activo</span>
-                        <span class="text-indigo-400 font-mono text-sm tracking-tighter">{{ $fecha }}</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Tráfico de Hoy</span>
-                        <span class="text-white font-mono text-sm">{{ $asistenciasHoy->count() }} Registros</span>
-                    </div>
-                </div>
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Operador</span>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                <span class="text-emerald-400 font-bold text-sm tracking-tight">{{ auth()->user()->name }}</span>
             </div>
+        </div>
 
-            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-                <div>
-                    <h2 class="text-3xl font-black text-slate-800 tracking-tighter italic uppercase">Registry<span class="text-indigo-600">Core</span></h2>
-                    <p class="text-slate-500 text-sm font-medium">Gestión de tiempos y asistencias del personal.</p>
-                </div>
+        <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Sincronización</span>
+            <span class="text-white font-mono text-sm tracking-tight">{{ now()->format('d M, Y') }}</span>
+            <span class="text-[10px] font-mono text-slate-500">{{ now()->format('H:i:s') }}</span>
+        </div>
 
-                @php $miRegistroHoy = $asistenciasHoy->where('user_id', auth()->id())->first(); @endphp
+        <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Filtro Activo</span>
+            <span class="text-indigo-300 font-mono text-sm tracking-tight bg-indigo-500/10 px-2 py-1 rounded-lg w-fit">{{ $fecha }}</span>
+        </div>
 
-                @if($miRegistroHoy && !$miRegistroHoy->hora_salida)
-                    <form action="{{ route('admin.asistencias.marcar-salida-auto') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="group relative bg-orange-500 text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-orange-200 transition-all hover:bg-orange-600 active:scale-95 flex items-center gap-3 uppercase text-xs tracking-widest">
-                            <span class="relative flex h-3 w-3">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-                            </span>
-                            Cerrar Mi Jornada
-                        </button>
-                    </form>
-                @endif
+        <div class="flex flex-col gap-1">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Tráfico de Hoy</span>
+            <div class="flex items-baseline gap-2">
+                <span class="text-white font-black text-2xl tracking-tighter">{{ $asistenciasHoy->count() }}</span>
+                <span class="text-slate-500 text-xs font-bold uppercase">Registros</span>
             </div>
+        </div>
+    </div>
+</div>
 
+            {{-- TABLA DE REGISTROS --}}
             <div class="bg-white shadow-2xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden border border-slate-100 p-4 sm:p-8">
                 <table id="miTablaGenerica" class="w-full border-separate border-spacing-y-3">
                     <thead>
@@ -66,82 +55,81 @@
                             <th class="px-6 py-4 text-left">Colaborador</th>
                             <th class="px-6 py-4 text-center">Entrada</th>
                             <th class="px-6 py-4 text-center">Salida</th>
-                            <th class="px-6 py-4 text-center">Notas de Campo</th>
+                            <th class="px-6 py-4 text-center">Notas</th>
                             <th class="px-6 py-4 text-right">Operaciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $usuario) @php
-                                $res = $usuario->statusAsistenciaHoy(); // Agregado $
-                                $asistencia = $usuario->asistencias->where('fecha', now()->toDateString())->first(); // Agregado $
+                        @foreach($User as $usuario)
+                            @php
+                                $asistencia = $asistenciasHoy->get($usuario->id);
+
+                                // Construcción del objeto $res para evitar el error de variable indefinida
+                                $res = new \stdClass();
+                                if (!$asistencia) {
+                                    $res->label = 'PENDIENTE';
+                                    $res->clase_punto = 'bg-slate-300';
+                                    $res->clase_boton = 'bg-indigo-600';
+                                    $res->boton = 'ASIGNAR';
+                                } else {
+                                    $res->label = strtoupper($asistencia->status);
+                                    $res->clase_punto = ($asistencia->status == 'aceptado') ? 'bg-emerald-500' : 'bg-amber-500';
+                                    $res->clase_boton = 'bg-slate-700';
+                                    $res->boton = 'ACTUALIZAR';
+                                }
                             @endphp
-                            <tr class="bg-white border border-slate-50 shadow-sm rounded-2xl group transition-all hover:shadow-md hover:bg-slate-50/50">
-                                {{-- Trabajador --}}
+                            <tr class="bg-white border border-slate-50 shadow-sm rounded-2xl group hover:shadow-md hover:bg-slate-50/50">
                                 <td class="px-6 py-5 rounded-l-3xl">
                                     <div class="flex items-center">
                                         <div class="relative">
-                                            <div class="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
-                                                {{ substr($usuario->name, 0, 1) }} </div>
-                                            <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white {{ $res->clase_punto }} {{ $res->label === 'ACTIVO' ? 'animate-pulse' : '' }}"></div>
+                                            <div class="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold">{{ substr($usuario->name, 0, 1) }}</div>
+                                            <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white {{ $res->clase_punto }} {{ $res->label === 'ACEPTADO' ? 'animate-pulse' : '' }}"></div>
                                         </div>
                                         <div class="ml-4">
-                                            <span class="text-sm font-black text-slate-700 block tracking-tight">{{ $usuario->name }}</span> <span class="text-[9px] font-bold py-0.5 px-2 rounded-md bg-slate-100 text-slate-500 tracking-tighter uppercase">Status: {{ $res->label }}</span>
+                                            <span class="text-sm font-black text-slate-700 block tracking-tight">{{ $usuario->name }}</span>
+                                            <span class="text-[9px] font-bold py-0.5 px-2 rounded-md bg-slate-100 text-slate-500 uppercase">Status: {{ $res->label }}</span>
                                         </div>
                                     </div>
                                 </td>
 
                                 <form action="{{ route('admin.asistencias.store') }}" method="POST">
                                     @csrf
-                                    <input type="hidden" name="user_id" value="{{ $usuario->id }}"> {{-- Entrada --}}
+                                    <input type="hidden" name="user_id" value="{{ $usuario->id }}">
                                     <td class="px-6 py-5 text-center">
-                                        <input type="time" name="hora_entrada"
-                                            value="{{ $asistencia && $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('H:i') : '' }}"
-                                            class="text-sm font-black text-slate-600 bg-slate-100/50 border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all p-2 w-28 text-center">
+                                        <input type="time" name="hora_entrada" value="{{ $asistencia && $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('H:i') : '' }}" class="text-sm font-black text-slate-600 bg-slate-100/50 rounded-xl p-2 w-28 text-center">
                                     </td>
-
-                                    {{-- Salida --}}
                                     <td class="px-6 py-5 text-center">
-                                        <input type="time" name="hora_salida"
-                                            value="{{ $asistencia && $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('H:i') : '' }}"
-                                            class="text-sm font-black text-indigo-600 bg-indigo-50/50 border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all p-2 w-28 text-center">
+                                        <input type="time" name="hora_salida" value="{{ $asistencia && $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('H:i') : '' }}" class="text-sm font-black text-indigo-600 bg-indigo-50/50 rounded-xl p-2 w-28 text-center">
                                     </td>
-
-                                    {{-- Observaciones --}}
                                     <td class="px-6 py-5 text-center">
-                                        <input type="text" name="observaciones"
-                                            value="{{ $asistencia->observaciones ?? '' }}"
-                                            placeholder="Añadir reporte..."
-                                            class="text-xs font-medium text-slate-500 bg-slate-100/50 border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-100 w-full p-2 min-w-[150px] transition-all">
+                                        <input type="text" name="observaciones" value="{{ $asistencia->observaciones ?? '' }}" placeholder="Añadir..." class="text-xs font-medium text-slate-500 bg-slate-100/50 rounded-xl w-full p-2">
                                     </td>
-
-                                    {{-- Acciones --}}
                                     <td class="px-6 py-5 text-right rounded-r-3xl">
                                         <div class="flex justify-end items-center gap-2">
-                                            <button type="submit" class="{{ $res->clase_boton }} text-white text-[10px] font-black px-5 py-2.5 rounded-xl shadow-lg transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest">
+                                            <button type="submit" class="{{ $res->clase_boton }} text-white text-[10px] font-black px-5 py-2.5 rounded-xl transition-all hover:-translate-y-1 uppercase tracking-widest">
                                                 {{ $res->boton }}
                                             </button>
-                                </form>
-
+                                            </form>
                                             @if($res->label !== 'FALTA')
                                                 <form action="{{ route('admin.asistencias.marcar-falta', ['id' => $usuario->id]) }}" method="POST">
                                                     @csrf
-                                                    <input type="hidden" name="user_id" value="{{ $usuario->id }}"> <button type="button" onclick="confirmarFaltaCustom(this)"
-                                                            class="bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white p-2.5 rounded-xl transition-all shadow-sm">
+                                                    <button type="submit" class="bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white p-2.5 rounded-xl transition-all">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                     </button>
                                                 </form>
                                             @endif
                                         </div>
                                     </td>
-                                </tr>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+</x-app-layout>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
             if (!$.fn.DataTable.isDataTable('#miTablaGenerica')) {
@@ -195,4 +183,3 @@
         .dataTables_paginate .paginate_button { @apply !rounded-xl !border-none !font-bold !text-xs !tracking-widest !px-4 !py-2; }
         .dataTables_paginate .paginate_button.current { @apply !bg-indigo-600 !text-white !shadow-lg !shadow-indigo-200; }
     </style>
-</x-app-layout>

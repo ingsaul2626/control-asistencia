@@ -102,8 +102,9 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::get('/asistencias', [AsistenciaController::class, 'index'])->name('asistencia.index');
 
     // Rutas para ver proyectos asignados y reportar avances
-    Route::post('/asistencia/{id}/aceptar', [AsistenciaController::class, 'aceptarAsistencia'])->name('user.asistencia.aceptar');
-    Route::post('/asistencia/{id}/salida', [AsistenciaController::class, 'marcarSalida'])->name('user.asistencia.marcarSalida');
+    Route::post('/asistencia/{id}/aceptar', [AsistenciaController::class, 'aceptarAsistencia'])->name('asistencia.aceptar');
+    Route::post('/asistencia/{id}/salida', [AsistenciaController::class, 'marcarSalida'])->name('asistencia.marcarSalida');
+
 
     Route::get('/mis-asignaciones', [UserController::class, 'myProjects'])->name('asignaciones');
 
