@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -44,23 +45,18 @@ class UserController extends Controller
         return view('user.asignaciones', compact('misProyectos', 'asistencia_hoy'));
         
     }
-    
-    public function descargarArchivo($id, $tipo)
+
+   public function descargarArchivo($id)
     {
-        // 1. Buscamos el proyecto
-        $proyecto = \App\Models\Proyecto::findOrFail($id);
+        $proyecto = Proyecto::findOrFail($id);
 
-        // 2. Determinamos qué campo queremos descargar ('archivo' o 'imagen')
-        $path = ($tipo === 'pdf') ? $proyecto->archivo : $proyecto->imagen;
-
-        // 3. Verificamos que el archivo realmente exista en el almacenamiento
-        if (!$path || !\Illuminate\Support\Facades\Storage::exists($path)) {
-            return back()->with('error', 'El archivo no existe.');
+        if ($proyecto->archivo_pdf && Storage::disk('public')->exists($proyecto->archivo_pdf)) {
+            return Storage::disk('public')->download($proyecto->archivo_pdf);
         }
 
-        // 4. Retornamos la respuesta de descarga
-        return \Illuminate\Support\Facades\Storage::download($path);
+        return back()->with('error', 'El archivo no está disponible.');
     }
+    
 
     public function finalizarProyecto($id)
     {
@@ -129,5 +125,7 @@ class UserController extends Controller
         $misProyectos->update(['reporte_trabajador' => $request->reporte_trabajador]);
         return back()->with('success', 'Reporte enviado al administrador.');
     }
+
+ 
 
 }

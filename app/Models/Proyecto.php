@@ -21,6 +21,7 @@ class Proyecto extends Model
         'reporte_trabajador',
         'tipo',
         'activo', 
+        'visible'
     ];
 
     /**

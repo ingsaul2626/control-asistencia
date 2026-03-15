@@ -1,83 +1,98 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Detalles del Proyecto: ') }} {{ $evento->titulo }}
-            </h2>
-            <a href="{{ route('admin.admin.panelControl') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md transition">
-                Volver al Panel
+        <div class="max-w-5xl mx-auto px-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">{{ $proyecto->titulo }}</h2>
+                <p class="text-slate-500 text-xs mt-1">Detalles técnicos y gestión</p>
+            </div>
+            <a href="{{ route('admin.panelControl') }}" 
+               class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all">
+                ← Volver
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12 bg-gray-100 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-5xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {{-- Columna Principal (2/3) --}}
+            <div class="lg:col-span-2 space-y-6">
+                {{-- Info General --}}
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-base font-bold text-slate-800">Información</h3>
+                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase {{ $proyecto->activo ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500' }}">
+                            {{ $proyecto->activo ? 'En Curso' : 'Finalizado' }}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                        <div><p class="text-[9px] text-slate-400 font-bold uppercase">Categoría</p><p class="text-sm font-semibold text-slate-800">{{ $proyecto->tipo }}</p></div>
+                        <div><p class="text-[9px] text-slate-400 font-bold uppercase">Inicio</p><p class="text-sm font-semibold text-slate-800">{{ $proyecto->created_at->format('d M, Y') }}</p></div>
+                    </div>
+                </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {{-- Reporte --}}
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4">Reporte Técnico</h3>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-600 leading-relaxed italic">
+                        {{ $proyecto->reporte_trabajador ?? 'Sin observaciones registradas.' }}
+                    </div>
+                </div>
+            </div>
 
-                <div class="md:col-span-2 space-y-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-indigo-500">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Información del Proyecto</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-xs font-bold text-gray-500 uppercase">Ubicación / Lugar</p>
-                                <p class="text-gray-800 font-medium">{{ $evento->lugar }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-gray-500 uppercase">Tipo de Proyecto</p>
-                                <p class="text-gray-800 font-medium">{{ $evento->tipo }}</p>
-                            </div>
-                            <div class="mt-4">
-                                <p class="text-xs font-bold text-gray-500 uppercase">Fecha de Registro</p>
-                                <p class="text-gray-800 font-medium">{{ $evento->created_at->format('d/m/Y') }}</p>
-                            </div>
-                            <div class="mt-4">
-                                <p class="text-xs font-bold text-gray-500 uppercase">Estado Actual</p>
-                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase {{ $evento->activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500' }}">
-                                    {{ $evento->activo ? 'Activo' : 'Pausado' }}
-                                </span>
-                            </div>
+            {{-- Sidebar Lateral (1/3) --}}
+            <div class="space-y-6">
+                {{-- Responsable --}}
+                <div class="bg-indigo-900 rounded-2xl p-5 text-white">
+                    <p class="text-[9px] text-indigo-300 font-bold uppercase mb-3">Responsable</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-800 rounded-full flex items-center justify-center shrink-0 text-xs font-bold">
+                            {{ substr($proyecto->user->name ?? 'U', 0, 1) }}
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold truncate">{{ $proyecto->user->name ?? 'Sin asignar' }}</p>
+                            <p class="text-[10px] text-indigo-300 truncate">{{ $proyecto->user->email ?? 'N/A' }}</p>
                         </div>
                     </div>
+                </div>
 
-                    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-amber-400">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Avance Técnico (Reporte del Trabajador)</h3>
-                        @if($evento->reporte_trabajador)
-                            <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                                <p class="text-gray-700 italic leading-relaxed">
-                                    "{{ $evento->reporte_trabajador }}"
-                                </p>
+                {{-- Documentación --}}
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5" x-data="{ open: false }">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4">Documentación</h3>
+                    @if($proyecto->archivo)
+                        @php
+                            $extension = pathinfo($proyecto->archivo, PATHINFO_EXTENSION);
+                            $esImagen = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'webp']);
+                            $urlArchivo = asset('storage/' . $proyecto->archivo);
+                        @endphp
+
+                        <div class="group relative overflow-hidden rounded-2xl border border-slate-200 cursor-pointer" 
+                             @click="$esImagen ? open = true : window.open('{{ $urlArchivo }}', '_blank')">
+                            <div class="h-40 bg-slate-100 flex items-center justify-center">
+                                @if($esImagen)
+                                    <img src="{{ $urlArchivo }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Archivo">
+                                @else
+                                    <div class="text-center">
+                                        <svg class="w-12 h-12 text-indigo-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        <p class="text-[10px] font-bold text-slate-500 mt-2 uppercase">{{ $extension }}</p>
+                                    </div>
+                                @endif
                             </div>
-                        @else
-                            <div class="text-center py-6 text-gray-400 italic">
-                                <p>No hay reportes técnicos cargados para este proyecto todavía.</p>
+                        </div>
+
+                        {{-- Modal de Imagen (Solo para imágenes) --}}
+                        @if($esImagen)
+                            <div x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" x-cloak @click="open = false">
+                                <img src="{{ $urlArchivo }}" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl">
                             </div>
                         @endif
-                    </div>
+
+                    @else
+                        <p class="text-xs text-slate-400 italic">Sin archivos.</p>
+                    @endif
                 </div>
-
-                <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm text-center">
-                        <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        </div>
-                        <h3 class="text-sm font-bold text-gray-500 uppercase mb-1">Responsable Asignado</h3>
-                        <p class="text-lg font-bold text-indigo-900">{{ $evento->user->name ?? 'Sin Asignar' }}</p>
-                        <p class="text-xs text-gray-400">{{ $evento->user->email ?? '' }}</p>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="text-sm font-bold text-gray-800 mb-4 border-b pb-2">Documentos Adjuntos</h3>
-                        <div class="flex items-center p-3 bg-gray-50 rounded-lg border hover:bg-gray-100 transition cursor-pointer">
-                            <svg class="w-8 h-8 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
-                            <div>
-                                <p class="text-xs font-bold text-gray-700">Plano_Tecnico.pdf</p>
-                                <p class="text-[10px] text-gray-400 uppercase">Ver Documento</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>

@@ -25,7 +25,9 @@ return new class extends Migration
         $table->timestamps();
         $table->string('tipo');
         $table->string('archivo_pdf')->nullable();
+        $table->string('categoria')->nullable();
         $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+        $table->text('reporte_trabajador')->nullable();
 
     });
 }

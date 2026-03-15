@@ -22,6 +22,7 @@ class ProyectoController extends Controller
     {
         $proyectos = Proyecto::with('user')->latest()->get();
         $usuarios = User::where('role', 'user')->get();
+        
 
         return view('admin.proyectos.index', compact('proyectos', 'usuarios'));
     }
@@ -106,29 +107,37 @@ class ProyectoController extends Controller
         return view('admin.proyectos.edit', compact('proyecto', 'usuarios'));
     }
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'titulo' => 'required|string|max:255',
-            'user_id' => 'required|exists:users,id',
-        ]);
+   public function update(Request $request, $id)
+{
+    $proyecto = Proyecto::findOrFail($id);
 
-        $proyecto = Proyecto::findOrFail($id);
+    // 1. Validar (Asegúrate que coincida con tus columnas reales)
+    $validated = $request->validate([
+        'titulo'        => 'required|string|max:255',
+        'user_id'       => 'required|exists:users,id',
+        'fecha_inicio'  => 'nullable|date',
+        'fecha_entrega' => 'nullable|date|after_or_equal:fecha_inicio',
+        'categoria'     => 'nullable|string',
+        'imagen'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        'archivo'       => 'nullable|file|mimes:pdf,docx,xlsx|max:5120',
+    ]);
 
-        if ($request->hasFile('imagen')) {
-            if($proyecto->imagen) Storage::disk('public')->delete($proyecto->imagen);
-            $proyecto->imagen = $request->file('imagen')->store('proyectos', 'public');
-        }
-
-        if ($request->hasFile('archivo')) {
-            if($proyecto->archivo) Storage::disk('public')->delete($proyecto->archivo);
-            $proyecto->archivo = $request->file('archivo')->store('planos', 'public');
-        }
-
-        $proyecto->update($request->only(['titulo', 'descripcion', 'user_id', 'fecha']));
-
-        return redirect()->route('admin.dashboard')->with('success', 'Proyecto actualizado con éxito');
+    // 2. Procesar Archivos (Si existen)
+    if ($request->hasFile('imagen')) {
+        if ($proyecto->imagen) Storage::disk('public')->delete($proyecto->imagen);
+        $validated['imagen'] = $request->file('imagen')->store('proyectos/imagenes', 'public');
     }
+
+    if ($request->hasFile('archivo')) {
+        if ($proyecto->archivo) Storage::disk('public')->delete($proyecto->archivo);
+        $validated['archivo'] = $request->file('archivo')->store('proyectos/planos', 'public');
+    }
+
+    // 3. Actualizar
+    $proyecto->update($validated);
+
+    return redirect()->route('admin.proyectos.index')->with('success', 'Proyecto actualizado con éxito.');
+}
 
     public function show($id)
     {
@@ -174,9 +183,36 @@ class ProyectoController extends Controller
     }
 
     $misProyectos = \App\Models\Proyecto::where('user_id', Auth::id())
+                    ->where('visible', true)
                     ->orderBy('updated_at', 'desc')
                     ->get();
 
     return view('user.asignaciones', compact('misProyectos'));
+}
+
+
+
+public function toggleEstado(Request $request, $id)
+{
+    // 1. Buscamos el proyecto
+    $proyecto = \App\Models\Proyecto::findOrFail($id);
+
+    // 2. Lógica para cambiar VISIBILIDAD
+    if ($request->has('visible')) {
+        // Invertimos el valor actual (si es true pasa a false y viceversa)
+        $proyecto->visible = !$proyecto->visible;
+    }
+
+    // 3. Lógica para cambiar ESTADO ACTIVO
+    if ($request->has('activo')) {
+        // Invertimos el valor actual
+        $proyecto->activo = !$proyecto->activo;
+    }
+
+    // 4. Guardamos los cambios
+    $proyecto->save();
+
+    // 5. Retornamos con un mensaje opcional
+    return back()->with('success', 'Proyecto actualizado exitosamente.');
 }
 }

@@ -32,35 +32,77 @@
                                 <th class="px-6 pb-2 text-left">Proyecto</th>
                                 <th class="px-4 pb-2 text-left">Categoría</th>
                                 <th class="px-4 pb-2 text-left">Estado</th>
-                                <th class="px-4 pb-2 text-center">Visibilidad</th>
+                                <th class="px-4 pb-2 text-center">Progreso</th>
                                 <th class="px-6 pb-2 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($proyectos as $proyecto)
-                            <tr class="bg-white shadow-sm border border-slate-100 rounded-2xl hover:shadow-md transition-shadow">
-                                <td class="py-4 px-6 font-bold text-slate-700">{{ $proyecto->titulo }}</td>
-                                <td class="py-4 px-4 uppercase text-[10px] font-black text-slate-400">{{ $proyecto->tipo }}</td>
-                                <td class="py-4 px-4">
-                                    <span class="text-xs font-bold text-slate-600">{{ $proyecto->responsable ?? 'Sin asignar' }}</span>
-                                </td>
-                                <td class="py-4 px-4 text-center">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold {{ $proyecto->activo ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600' }}">
-                                        {{ $proyecto->activo ? 'VISIBLE' : 'OCULTO' }}
-                                    </span>
-                                </td>
-                                <td class="py-4 px-6 text-right">
-                                    <div class="flex justify-end gap-2">
-                                        <a href="{{ route('admin.proyectos.edit', $proyecto->id) }}" class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors">
-                                            Reasignar
-                                        </a>
-                                        <a href="{{ route('admin.proyectos.edit', $proyecto->id) }}" class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
-                                            Actualizar
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
+                    <tr class="group hover:bg-slate-50 transition-all duration-200 border-b border-slate-100">
+                        {{-- Título --}}
+                        <td class="p-4 text-sm font-semibold text-slate-800">{{ $proyecto->titulo }}</td>
+                        
+                        {{-- Categoría --}}
+                        <td class="p-4 text-sm text-slate-500 font-medium">{{ $proyecto->tipo }}</td>
+
+                        {{-- Visibilidad (Toggle) --}}
+                        <td class="p-4">
+                            <form action="{{ route('admin.proyectos.toggle', $proyecto->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="visible" value="1">
+                                <button type="submit" class="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full transition-all 
+                                    {{ $proyecto->visible ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100' }}">
+                                    <span>●</span> {{ $proyecto->visible ? 'Visible' : 'Oculto' }}
+                                </button>
+                            </form>
+                        </td>
+
+                        {{-- Estado (Toggle) --}}
+                        <td class="p-4">
+                            <form action="{{ route('admin.proyectos.toggle', $proyecto->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="activo" value="1">
+                                <button type="submit" class="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full transition-all 
+                                    {{ $proyecto->activo ? 'bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100' : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200' }}">
+                                    <span>●</span> {{ $proyecto->activo ? 'En Proceso' : 'Finalizado' }}
+                                </button>
+                            </form>
+                        </td>
+
+                        {{-- Acciones --}}
+                        <td class="p-4">
+                            <div class="flex items-center gap-4">
+                                {{-- Ver --}}
+                                <a href="{{ route('admin.proyectos.show', $proyecto->id) }}" 
+                                class="text-slate-400 hover:text-indigo-600 transition-colors" title="Ver detalle">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </a>
+                                
+                                {{-- Editar --}}
+                                <a href="{{ route('admin.proyectos.edit', $proyecto->id) }}" 
+                                class="text-slate-400 hover:text-sky-600 transition-colors" title="Editar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+
+                                {{-- Eliminar --}}
+                                <form action="{{ route('admin.proyectos.destroy', $proyecto->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este proyecto?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-slate-400 hover:text-rose-600 transition-colors" title="Eliminar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
                         </tbody>
                     </table>
                 </div>

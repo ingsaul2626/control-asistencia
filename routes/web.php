@@ -80,18 +80,30 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('usuarios', UsuarioController::class)->parameters(['usuarios' => 'user']);
     Route::resource('asistencias', AsistenciaController::class);
 
+    //rutas proyecto
     Route::get('/admin/proyectos', [ProyectoController::class, 'index'])->name('admin.proyectos.index');
     Route::get('/proyectos/{proyecto}', [ProyectoController::class, 'show'])->name('proyectos.show');
     Route::post('/proyectos/asignar', [AdminController::class, 'asignarProyecto'])->name('proyectos.asignar');
     Route::get('/proyectos-finalizados', [ProyectoController::class, 'finalizados'])->name('proyectos.finalizados');
     Route::get('proyectos/reportes', [ProyectoController::class, 'reportes'])->name('proyectos.reportes');
     Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos.index');
-    Route::get('/proyectos/{proyecto}/edit', [ProyectoController::class, 'edit'])->name('proyectos.edit');
+
+    Route::put('/proyectos/{proyecto}', [ProyectoController::class, 'update'])->name('proyectos.update'); 
+
+    Route::get('admin/proyectos/{proyecto}/edit', [App\Http\Controllers\ProyectoController::class, 'edit'])
+    ->name('proyectos.edit');
+    
     Route::post('/proyectos', [App\Http\Controllers\ProyectoController::class, 'store'])->name('proyectos.store');
 
+    Route::post('/proyectos/{id}/toggle', [App\Http\Controllers\ProyectoController::class, 'toggleEstado'])
+         ->name('proyectos.toggle');
 
+//faltas 
     Route::post('/asistencias/marcar-falta/{id}', [AsistenciaController::class, 'marcarFalta'])
         ->name('asistencias.marcar-falta');
+
+        Route::delete('/proyectos/{id}', [App\Http\Controllers\ProyectoController::class, 'destroy'])
+         ->name('proyectos.destroy');
 
 });
 
@@ -112,8 +124,8 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::get('/proyectos/{id}/finalizar', [App\Http\Controllers\UserController::class, 'finalizarProyecto'])->name('proyectos.finalizar');
 
         
-    Route::get('/proyectos/{id}/descargar/{tipo}', [App\Http\Controllers\UserController::class, 'descargarArchivo'])
-         ->name('proyectos.descargar');
+    Route::get('/proyectos/descargar/{id}', [App\Http\Controllers\UserController::class, 'descargarArchivo'])
+         ->name('user.proyectos.descargar');
 });
 
 Route::get('/proyecto/{id}', [ProyectoController::class, 'show'])->name('eventos.show');

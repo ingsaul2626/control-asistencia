@@ -29,6 +29,7 @@
                     @foreach($misProyectos as $proyecto)
                         <article x-data="{ showModal: false }" class="bg-white border border-slate-200 rounded-3xl p-6 hover:border-indigo-300 transition-all duration-300 flex gap-6 shadow-sm hover:shadow-md">
                             
+                            
                             @if($proyecto->imagen)
                                 <div class="w-24 h-24 flex-shrink-0">
                                     <a href="{{ asset('storage/'.$proyecto->imagen) }}" target="_blank" class="block w-full h-full rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
@@ -36,17 +37,27 @@
                                     </a>
                                 </div>
                             @endif
+                            
 
-                            <div class="flex-grow min-w-0 flex flex-col justify-between">
+                            <div class="grid grid-cols-[1fr_auto] items-center gap-4 mb-3">
                                 <div>
-                                    <div class="flex justify-between items-center mb-1">
-                                        <h3 class="text-base font-bold text-slate-900 truncate">{{ $proyecto->titulo }}</h3>
-                                        <div class="flex items-center gap-2">
-                                            {{-- Botón Ver Detalles --}}
-                                            <button @click="showModal = true" class="text-[9px] font-bold uppercase tracking-widest text-indigo-500 hover:text-indigo-700 transition">
+                                    <div class="flex justify-between items-start mb-3 gap-4">
+                                        <h3 class="text-base font-bold text-slate-900 truncate min-w-0"> {{ $proyecto->titulo }}</h3>
+
+                                        <div class="flex items-center gap-4"> 
+                                            @if($proyecto->archivo_pdf)
+                                                <a href="{{ route('user.user.proyectos.descargar', $proyecto->id) }}" 
+                                                class="text-xs font-bold uppercase tracking-widest text-rose-500 hover:text-rose-700 whitespace-nowrap">
+                                                    📄 PDF
+                                                </a>
+                                            @endif
+                                            
+                                            <button @click="showModal = true" 
+                                                    class="text-[9px] font-bold uppercase tracking-widest text-indigo-500 hover:text-indigo-700 whitespace-nowrap">
                                                 Ver detalles
                                             </button>
-                                            <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full {{ $proyecto->activo ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600' }}">
+                                            
+                                            <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap {{ $proyecto->activo ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600' }}">
                                                 {{ $proyecto->activo ? 'En progreso' : 'Finalizado' }}
                                             </span>
                                         </div>
