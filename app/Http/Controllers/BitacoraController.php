@@ -3,12 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bitacora;
-use App\Models\Actividad; // Importamos el modelo Actividad para la conexión
-
-
-namespace App\Http\Controllers;
-
-use App\Models\Bitacora;
 use App\Models\Actividad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,42 +11,42 @@ class BitacoraController extends Controller
 {
     public function index()
     {
-        // Traemos los logs paginados
-        $logs = Bitacora::with('user')->latest()->paginate(15);
-        return view('admin.bitacora', compact('logs'));
+        // Traemos la información paginada para la vista
+
+        $bitacoras = Bitacora::with('user')->latest()->paginate(15);
+       return view('admin.bitacora', [
+        'bitacoras' => $bitacoras,
+        'logs' => $bitacoras
+    ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * Este método ahora crea el Log y la Notificación automáticamente.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'descripcion' => 'required|string',
+            'accion' => 'required|string',
+            'detalles' => 'required|string',
         ]);
 
-        // Llamamos a la función interna para procesar ambos registros
-        $this->registrarEvento($request->descripcion);
+        // Pasamos ambos argumentos a la función
+        $this->registrarEvento($request->accion, $request->detalles);
 
-        return back()->with('success', 'Evento registrado en bitácora y notificado.');
+        return back()->with('success', 'Actividad de proyecto registrada en bitácora.');
     }
 
-    /**
-     * Función centralizada para conectar Bitácora con Notificaciones
-     */
-    public function registrarEvento($descripcion)
+    public function registrarEvento($accion, $detalles)
     {
-        // 1. Guardas en Bitácora
+        // Guardamos usando los campos reales de tu tabla (accion y detalles)
         $bitacora = Bitacora::create([
-            'descripcion' => $descripcion,
-            'user_id' => Auth::id(),
+            'user_id'  => Auth::id(),
+            'accion'   => $accion,
+            'detalles' => $detalles,
+            'ip'       => request()->ip(),
         ]);
 
-        // 2. CONEXIÓN: Creas la notificación/actividad automáticamente
+        // Opcional: Registrar en la tabla Actividad si aún la usas
         Actividad::create([
-            'titulo' => 'Nueva entrada en Bitácora',
-            'mensaje' => 'El usuarios ' . Auth::user()->name . ' registró: ' . $descripcion,
+            'titulo' => 'Actualización de Proyecto',
+            'mensaje' => 'El usuario ' . Auth::user()->name . ' registró: ' . $accion,
             'user_id' => Auth::id(),
             'leido' => false,
         ]);

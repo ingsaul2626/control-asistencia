@@ -7,16 +7,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use HasFactory;
-    use Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
+
 
     protected $fillable = [
         'name', 'email', 'password', 'cedula', 'role',
         'tipo_trabajador', 'seccion', 'telefono', 'cargo',
-        'security_question', 'security_answer', 'status','is_approved',
+        'security_question', 'security_answer', 'status','is_approved','seccion', 'remember_token',
+        'created_at', 'updated_at', 'deleted_at'
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -135,6 +138,10 @@ class User extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    public function isOperator() {
+    return $this->role === 'operador';
+    }
+
 
 
     //is_approved es un booleano que indica si el usuario ha sido aprobado por un admin
@@ -146,18 +153,20 @@ class User extends Authenticatable
 
 public function redirectPath()
 {
-    $user = auth()->user();
+    // Usamos Auth::user() que es lo estándar en Laravel
+    $user = Auth::user();
 
-    // Verificamos las dos condiciones:
-    // 1. is_approved debe ser true
-    // 2. status debe ser 'APROBADO' (o lo que definas)
-    if ($user->is_approved && $user->status === 'APROBADO') {
+    if ($user && $user->is_approved && $user->status === 'APROBADO') {
         return '/dashboard';
     }
 
-    // Si no cumple, cerramos sesión y enviamos error
-    auth()->logout();
+    // En lugar de cerrar sesión aquí (que puede causar bucles),
+    // es mejor manejar la redirección y que el middleware se encargue del resto.
     return '/login?error=no_aprobado';
 }
+
+
+
+
 
 }

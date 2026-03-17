@@ -2,7 +2,7 @@
    @php
     \Carbon\Carbon::setLocale('es');
     $user = auth()->user();
-    
+
     // Consultamos la asistencia de hoy una sola vez
     $asistencia = \App\Models\Asistencia::where('user_id', $user->id)
                         ->whereDate('fecha', now()->toDateString())
@@ -21,71 +21,95 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                 {{-- COLUMNA IZQUIERDA: PROYECTOS (8/12) --}}
-                <div class="lg:col-span-8 space-y-8">
-                    <h2 class="text-3xl font-black text-slate-950 tracking-tighter italic border-l-4 border-indigo-600 pl-4">
-                        Mis Proyectos Asignados
-                    </h2>
+                {{-- COLUMNA IZQUIERDA: PROYECTOS --}}
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            Proyectos Asignados
+                        </h3>
+                        <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">{{ $misProyectos->count() }} Activos</span>
+                    </div>
 
                     @foreach($misProyectos as $proyecto)
-                        <article x-data="{ showModal: false }" class="bg-white border border-slate-200 rounded-3xl p-6 hover:border-indigo-300 transition-all duration-300 flex gap-6 shadow-sm hover:shadow-md">
-                            
-                            
-                            @if($proyecto->imagen)
-                                <div class="w-24 h-24 flex-shrink-0">
-                                    <a href="{{ asset('storage/'.$proyecto->imagen) }}" target="_blank" class="block w-full h-full rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
-                                        <img src="{{ asset('storage/'.$proyecto->imagen) }}" alt="Proyecto" class="w-full h-full object-cover">
-                                    </a>
+                        <article x-data="{ showModal: false }" class="group bg-white border border-slate-200 rounded-[2rem] p-5 hover:shadow-xl hover:shadow-indigo-500/5 hover:border-indigo-200 transition-all duration-300">
+                            <div class="flex flex-col sm:flex-row gap-6">
+                                {{-- Thumbnail --}}
+                                <div class="relative w-full sm:w-32 h-32 flex-shrink-0">
+                                    <img src="{{ $proyecto->imagen ? asset('storage/'.$proyecto->imagen) : 'https://ui-avatars.com/api/?name='.urlencode($proyecto->titulo).'&background=6366f1&color=fff' }}"
+                                         alt="Proyecto" class="w-full h-full object-cover rounded-2xl shadow-inner">
+                                    <div class="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl"></div>
                                 </div>
-                            @endif
-                            
 
-                            <div class="grid grid-cols-[1fr_auto] items-center gap-4 mb-3">
-                                <div>
-                                    <div class="flex justify-between items-start mb-3 gap-4">
-                                        <h3 class="text-base font-bold text-slate-900 truncate min-w-0"> {{ $proyecto->titulo }}</h3>
+                                <div class="flex-grow">
+                                    <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+                                        <h4 class="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                            {{ $proyecto->titulo }}
+                                        </h4>
 
-                                        <div class="flex items-center gap-4"> 
-                                            @if($proyecto->archivo_pdf)
-                                                <a href="{{ route('user.user.proyectos.descargar', $proyecto->id) }}" 
-                                                class="text-xs font-bold uppercase tracking-widest text-rose-500 hover:text-rose-700 whitespace-nowrap">
-                                                    📄 PDF
-                                                </a>
-                                            @endif
+                                        {{-- ACCIONES --}}
+                                        <div class="flex items-center gap-2">
                                             
-                                            <button @click="showModal = true" 
-                                                    class="text-[9px] font-bold uppercase tracking-widest text-indigo-500 hover:text-indigo-700 whitespace-nowrap">
-                                                Ver detalles
+                                            @if($proyecto->archivo)
+                                                        <a href="{{ route('user.proyectos.descargar', $proyecto->id) }}"
+                                                        class="flex items-center gap-2 px-3 py-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 border border-rose-100 transition-all shadow-sm"
+                                                        title="Descargar archivo">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                            </svg>
+                                                            <span class="text-[10px] font-black uppercase">Descargar PDF</span>
+                                                        </a>
+                                                    @else
+                                                        <span class="px-3 py-2 bg-slate-100 text-slate-400 rounded-xl text-[10px] font-bold uppercase">Sin PDF</span>
+                                                    @endif
+
+
+                                            <button @click="showModal = true"
+                                                    class="p-2 bg-slate-50 text-slate-400 rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                                                    title="Ver detalles">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
                                             </button>
-                                            
-                                            <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap {{ $proyecto->activo ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600' }}">
-                                                {{ $proyecto->activo ? 'En progreso' : 'Finalizado' }}
-                                            </span>
                                         </div>
                                     </div>
-                                    <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">{{ $proyecto->descripcion }}</p>
-                                </div>
-                                
-                                <form action="{{ route('user.proyectos.updateReport', $proyecto->id) }}" method="POST" class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between gap-4">
-                                    @csrf @method('PUT')
-                                    
-                                    <input type="text" name="reporte_trabajador" value="{{ $proyecto->reporte_trabajador }}" 
-                                        class="flex-grow bg-slate-50 border-0 rounded-lg text-[11px] px-3 py-2 focus:ring-1 focus:ring-indigo-200 transition" 
-                                        placeholder="Añadir reporte...">
-                                    
-                                    <div class="flex items-center gap-2 flex-shrink-0">
-                                        <button type="submit" class="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
-                                            Guardar
-                                        </button>
-                                        <a href="{{ route('user.proyectos.finalizar', $proyecto->id) }}" 
-                                            class="px-3 py-2 text-[10px] font-bold uppercase tracking-widest bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow-sm hover:shadow-emerald-200">
-                                            Finalizar
-                                        </a>
+
+                                    <p class="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-4">
+                                        {{ $proyecto->descripcion }}
+                                    </p>
+
+                                    {{-- Footer de la tarjeta --}}
+                                    <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-50">
+                                        <div class="flex items-center gap-3">
+                                            <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-bold {{ $proyecto->activo ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-emerald-700' }}">
+                                                <span class="w-1.5 h-1.5 rounded-full {{ $proyecto->activo ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500' }}"></span>
+                                                {{ $proyecto->activo ? 'En progreso' : 'Finalizado' }}
+                                            </span>
+                                            <span class="text-[11px] text-slate-400 font-medium">
+                                                Vence: {{ \Carbon\Carbon::parse($proyecto->fecha_entrega)->format('d/m/Y') }}
+                                            </span>
+                                        </div>
+
+                                        <form action="{{ route('user.proyectos.updateReport', $proyecto->id) }}" method="POST" class="flex items-center gap-2 flex-grow max-w-md">
+                                            @csrf @method('PUT')
+                                            <input type="text" name="reporte_trabajador" value="{{ $proyecto->reporte_trabajador }}"
+                                                   class="w-full bg-slate-50 border-transparent focus:border-indigo-300 focus:bg-white focus:ring-0 rounded-xl text-xs py-2 transition-all"
+                                                   placeholder="Reporte rápido...">
+                                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all active:scale-95">
+                                                Guardar
+                                            </button>
+                                            <a href="{{ route('user.proyectos.finalizar', $proyecto->id) }}"
+                                               class="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-600 shadow-md shadow-emerald-200 transition-all active:scale-95">
+                                                Completar
+                                            </a>
+                                        </form>
                                     </div>
-                                </form>
+                                </div>
                             </div>
 
                             {{-- MODAL FLOTANTE --}}
-                            <div x-show="showModal" 
+                            <div x-show="showModal"
                                 x-cloak
                                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
                                 x-transition:enter="transition ease-out duration-300"
@@ -94,13 +118,13 @@
                                 x-transition:leave="transition ease-in duration-200"
                                 x-transition:leave-start="opacity-100"
                                 x-transition:leave-end="opacity-0">
-                                
+
                                 <div @click.away="showModal = false" class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl space-y-6">
                                     <div class="flex justify-between items-start">
                                         <h2 class="text-xl font-black text-slate-900">{{ $proyecto->titulo }}</h2>
                                         <button @click="showModal = false" class="text-slate-400 hover:text-slate-600">✕</button>
                                     </div>
-                                    
+
                                     <div class="space-y-3">
                                         <p class="text-sm text-slate-600 leading-relaxed">{{ $proyecto->descripcion }}</p>
                                         <div class="grid grid-cols-2 gap-4 text-xs">
@@ -122,12 +146,12 @@
                             </div>
                         </article>
                     @endforeach
-                
+
             </div>
 
                 {{-- COLUMNA DERECHA: GESTIÓN (4/12) --}}
                 <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
-                    
+
                     {{-- Control de Asistencia --}}
                     <div class="bg-indigo-900 rounded-3xl p-6 text-white shadow-xl">
                         <h3 class="text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-6">Control de Asistencia</h3>
@@ -141,7 +165,7 @@
                                 <p class="text-lg font-mono font-bold">{{ ($asistencia && $asistencia->hora_salida) ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('H:i') : '--:--'}}</p>
                             </div>
                         </div>
-                        
+
                         @if($asistencia)
                             @if($asistencia->status === 'pendiente')
                                 <form action="{{ route('user.asistencia.aceptar', $asistencia->id) }}" method="POST">

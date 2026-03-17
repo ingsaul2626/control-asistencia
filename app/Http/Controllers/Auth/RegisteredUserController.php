@@ -27,31 +27,38 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // 1. Validación de campos (incluyendo seguridad)
+        // 1. Validación de campos actualizada
         $request->validate([
-            'cedula' => ['required', 'string', 'max:20', 'unique:users,cedula'],
+            'cedula' => ['required', 'string', 'max:8', 'unique:users,cedula'],
+            'cargo' => ['required', 'string', 'max:255'],
+            'telefono' => ['required', 'string', 'max:11'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'security_question' => ['required', 'string'],
             'security_answer' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'tipo_trabajador' => ['required', 'string'],
         ]);
 
-        // 2. Creación del usuarios con los nuevos campos
-        $users = User::create([
+        // 2. Creación del usuario con los nuevos campos
+        $user = User::create([
             'cedula' => $request->cedula,
+            'cargo' => $request->cargo,
+            'telefono' => $request->telefono,
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'security_question' => $request->security_question,
-            // Guardamos la respuesta en minúsculas para facilitar la recuperación posterior
             'security_answer' => strtolower($request->security_answer),
+            'tipo_trabajador' => $request->tipo_trabajador,
+            'seccion' => $request->seccion,
+            
         ]);
 
-        // 3. Disparar evento de registro, login automático y redirección
-        event(new Registered($users));
+        // 3. Disparar evento de registro, login y redirección
+        event(new Registered($user));
 
-        Auth::login($users);
+        Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
     }

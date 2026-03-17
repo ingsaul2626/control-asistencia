@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'checkUserApproved' => \App\Http\Middleware\CheckUserApproved::class,
+            'checkRole' => \App\Http\Middleware\CheckRole::class,
+            'CheckOperator' => \App\Http\Middleware\CheckOperator::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -88,17 +88,17 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('proyectos/reportes', [ProyectoController::class, 'reportes'])->name('proyectos.reportes');
     Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos.index');
 
-    Route::put('/proyectos/{proyecto}', [ProyectoController::class, 'update'])->name('proyectos.update'); 
+    Route::put('/proyectos/{proyecto}', [ProyectoController::class, 'update'])->name('proyectos.update');
 
     Route::get('admin/proyectos/{proyecto}/edit', [App\Http\Controllers\ProyectoController::class, 'edit'])
     ->name('proyectos.edit');
-    
+
     Route::post('/proyectos', [App\Http\Controllers\ProyectoController::class, 'store'])->name('proyectos.store');
 
     Route::post('/proyectos/{id}/toggle', [App\Http\Controllers\ProyectoController::class, 'toggleEstado'])
          ->name('proyectos.toggle');
 
-//faltas 
+//faltas
     Route::post('/asistencias/marcar-falta/{id}', [AsistenciaController::class, 'marcarFalta'])
         ->name('asistencias.marcar-falta');
 
@@ -123,9 +123,9 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::put('/proyectos/{id}/reporte', [App\Http\Controllers\UserController::class, 'updateReport'])->name('proyectos.updateReport');
     Route::get('/proyectos/{id}/finalizar', [App\Http\Controllers\UserController::class, 'finalizarProyecto'])->name('proyectos.finalizar');
 
-        
-    Route::get('/proyectos/descargar/{id}', [App\Http\Controllers\UserController::class, 'descargarArchivo'])
-         ->name('user.proyectos.descargar');
+
+    Route::get('/proyectos/descargar/{id}', [UserController::class, 'descargarArchivo'])
+         ->name('proyectos.descargar');
 });
 
 Route::get('/proyecto/{id}', [ProyectoController::class, 'show'])->name('eventos.show');

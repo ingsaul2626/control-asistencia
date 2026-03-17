@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\BitacoraController;
 
 class ProyectoController extends Controller
 {
@@ -22,7 +23,7 @@ class ProyectoController extends Controller
     {
         $proyectos = Proyecto::with('user')->latest()->get();
         $usuarios = User::where('role', 'user')->get();
-        
+
 
         return view('admin.proyectos.index', compact('proyectos', 'usuarios'));
     }
@@ -43,6 +44,8 @@ class ProyectoController extends Controller
         ]);
 
         $proyecto = new \App\Models\Proyecto($request->except(['imagen', 'archivo_pdf']));
+
+
 
 
         if ($request->hasFile('imagen')) {
@@ -74,6 +77,12 @@ class ProyectoController extends Controller
 
     // 5. Guardar en la base de datos
     $proyecto->save();
+
+    $bitacora = new \App\Http\Controllers\BitacoraController();
+    $bitacora->registrarEvento(
+        'Creación de Proyecto',
+        "Se creó el proyecto: '{$proyecto->titulo}' asignado al usuario ID: {$proyecto->user_id}"
+    );
 
     // 6. Redireccionar con éxito
     return redirect()->route('admin.proyectos.index')
@@ -211,7 +220,7 @@ public function toggleEstado(Request $request, $id)
 
         // 4. Guardamos los cambios
     $proyecto->save();
-    
+
 
     // 5. Retornamos con un mensaje opcional
     return back()->with('success', 'Proyecto actualizado exitosamente.');

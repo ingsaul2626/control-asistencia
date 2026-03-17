@@ -10,7 +10,17 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void {
+
+
+
     Schema::table('asistencias', function ($table) {
+        $table->id();
+        $table->dropForeign(['user_id']);
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->string('status');
+        $table->date('fecha');
+        $table->timestamps();
+
         if (!Schema::hasColumn('asistencias', 'fecha')) $table->date('fecha')->after('usuarios_id');
         if (!Schema::hasColumn('asistencias', 'status')) $table->string('status')->default('presente');
         if (!Schema::hasColumn('asistencias', 'observaciones')) $table->text('observaciones')->nullable();
