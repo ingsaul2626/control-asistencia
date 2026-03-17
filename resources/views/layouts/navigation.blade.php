@@ -12,12 +12,12 @@
                 {{-- Menú Izquierdo --}}
                 <div class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-[11px] font-black uppercase tracking-[0.15em]">
-                        {{ __('Inicio') }}
+                        {{ __('Panel') }}
                     </x-nav-link>
 
                     @if(auth()->user()->role === 'admin')
                         <x-nav-link :href="route('admin.panelControl')" :active="request()->routeIs('admin.panelControl.*')" class="text-[11px] font-black uppercase tracking-[0.15em]">
-                            {{ __('Panel') }}
+                            {{ __('Proyectos Generales') }}
                         </x-nav-link>
 
                         <x-nav-link :href="route('admin.asistencias.index')" :active="request()->routeIs('admin.asistencias.*')" class="text-[11px] font-black uppercase tracking-[0.15em]">
@@ -86,13 +86,13 @@
         </svg>
 
         @if($count > 0)
-            <span class="absolute -top-1 -right-1 flex h-5 w-5">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                <span class="relative inline-flex items-center justify-center rounded-full h-5 w-5 bg-rose-500 text-[9px] font-black text-white">
-                    {{ $count > 9 ? '+9' : $count }}
-                </span>
-            </span>
-        @endif
+    <span class="absolute -top-1 -right-1 flex h-5 w-5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+            {{ $count > 9 ? '+9' : $count }}
+        </span>
+    </span>
+@endif
     </button>
 
     {{-- Panel Desplegable --}}
@@ -106,7 +106,7 @@
                 {{ $is_admin ? 'Actividad Reciente' : 'Mis Notificaciones' }}
             </h3>
             @if(!$is_admin && $count > 0)
-                <form action="{{ route('notifications.markRead') }}" method="POST">
+                <form action="{{ route('notificaciones.leer') }}" method="POST">
                     @csrf
                     <button type="submit" class="text-[9px] bg-white px-2 py-1 rounded-lg border border-slate-200 text-indigo-600 font-black uppercase hover:bg-indigo-50 transition-colors">
                         Limpiar
@@ -115,59 +115,77 @@
             @endif
         </div>
 
-        <div class="max-h-96 overflow-y-auto">
-            @forelse($notifs as $n)
-                @php
-                    // Lógica para definir colores e iconos según el contenido
-                    $tipo = strtolower($n->titulo ?? $n->accion);
-                    $color = 'bg-slate-100 text-slate-600';
-                    $icon = '<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'; // Default Info
+                        <div class="max-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+    @forelse($notifs as $n)
+        @php
+            $tipo = strtolower($n->accion ?? $n->titulo);
 
-                    if (str_contains($tipo, 'proyecto') || str_contains($tipo, 'asign')) {
-                        $color = 'bg-indigo-100 text-indigo-600';
-                        $icon = '<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />';
-                    } elseif (str_contains($tipo, 'asistencia') || str_contains($tipo, 'entrada')) {
-                        $color = 'bg-emerald-100 text-emerald-600';
-                        $icon = '<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
-                    } elseif (str_contains($tipo, 'falta') || str_contains($tipo, 'error')) {
-                        $color = 'bg-rose-100 text-rose-600';
-                        $icon = '<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />';
-                    }
-                @endphp
+            // Mapeo dinámico de estilos
+            $config = [
+                'proyecto'   => ['bg' => 'bg-indigo-50',  'text' => 'text-indigo-600', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
+                'asistencia' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                'entrada'    => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                'error'      => ['bg' => 'bg-rose-50',    'text' => 'text-rose-600',    'icon' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'],
+                'eliminación'=> ['bg' => 'bg-orange-50',  'text' => 'text-orange-600',  'icon' => 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'],
+                'actualización' => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600',  'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
+                'default'    => ['bg' => 'bg-slate-50',   'text' => 'text-slate-500',   'icon' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z']
+            ];
 
-                <div class="px-5 py-4 border-b border-slate-50 {{ !$n->leido ? 'bg-indigo-50/20' : '' }} hover:bg-slate-50 transition-colors">
-                    <div class="flex items-start gap-3">
-                        <div class="h-8 w-8 rounded-full {{ $color }} flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                {!! $icon !!}
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs {{ !$n->leido ? 'font-bold text-slate-900' : 'text-slate-600' }} leading-snug">
-                                @if($is_admin)
-                                    <span class="font-bold text-indigo-600">{{ $n->user->name ?? 'Sistema' }}</span>: {{ $n->accion ?? $n->mensaje }}
-                                @else
-                                    {{ $n->titulo }}: {{ $n->mensaje }}
-                                @endif
-                            </p>
-                            <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold">
-                                {{ $n->created_at->diffForHumans() }}
-                            </p>
-                        </div>
+            // Buscar coincidencia o usar default
+            $style = collect($config)->first(fn($v, $k) => str_contains($tipo, $k)) ?? $config['default'];
+        @endphp
+
+        <div class="group relative px-5 py-4 border-b border-slate-100 {{ !$n->leido ? 'bg-indigo-50/30' : 'bg-white' }} hover:bg-slate-50 transition-all duration-200">
+
+            {{-- Indicador de "Nuevo" --}}
+            @if(!$n->leido)
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+            @endif
+
+            <div class="flex items-start gap-4">
+                {{-- Icono con efecto hover --}}
+                <div class="h-10 w-10 rounded-xl {{ $style['bg'] }} {{ $style['text'] }} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="{{ $style['icon'] }}" />
+                    </svg>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-baseline mb-0.5">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                            {{ $n->accion ?? 'Notificación' }}
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-medium">
+                            {{ $n->created_at->diffForHumans() }}
+                        </span>
+                    </div>
+
+                    <p class="text-sm leading-relaxed {{ !$n->leido ? 'text-slate-900 font-semibold' : 'text-slate-500' }}">
+                        @if($is_admin)
+                            <span class="text-indigo-600 font-bold">{{ $n->user->name ?? 'Sistema' }}</span>
+                        @endif
+                        <span class="text-slate-700">{{ $n->detalles ?? $n->mensaje }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="flex flex-col items-center justify-center py-12 px-5 text-center">
+            <div class="bg-slate-50 p-4 rounded-full mb-3">
+                <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+            </div>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Bandeja vacía</p>
+        </div>
+    @endforelse
+</div>
+
+                        <a href="{{ $is_admin ? url('/bitacora') : route('user.asignaciones') }}" class="block py-3 text-center text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                            Ver Historial Completo
+                        </a>
                     </div>
                 </div>
-            @empty
-                <div class="px-5 py-8 text-center text-xs text-slate-400 font-bold">
-                    No hay novedades por ahora
-                </div>
-            @endforelse
-        </div>
-
-        <a href="{{ $is_admin ? url('/bitacora') : route('user.asignaciones') }}" class="block py-3 text-center text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors">
-            Ver Historial Completo
-        </a>
-    </div>
-</div>
 
                 {{-- Dropdown de Perfil --}}
                 <x-dropdown align="right" width="56">
@@ -218,3 +236,31 @@
         </div>
     </div>
 </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bellButton = document.querySelector('#boton-campana'); // Asegúrate que tu botón tenga este ID
+    const badge = document.querySelector('#contador-notificaciones'); // El círculo rojo
+
+    if (bellButton) {
+        bellButton.addEventListener('click', function() {
+            // Si hay un badge rojo, lo quitamos y avisamos al servidor
+            if (badge) {
+                fetch('{{ route("notificaciones.leer") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        badge.remove(); // Quita el "+9" visualmente
+                    }
+                });
+            }
+        });
+    }
+});
+</script>

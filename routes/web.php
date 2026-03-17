@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\{ ProfileController, AsistenciaController, ReporteController, ProyectoController,
-AdminController, UserController, BitacoraController, NotificacionController };
+use App\Http\Controllers\{ ProfileController, AsistenciaController, ReporteController, ProyectoController, AdminController, UserController, BitacoraController, NotificacionController };
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\DashboardController;
 use App\Models\Proyecto;
@@ -48,12 +47,8 @@ Route::middleware(['auth', 'verified', 'checkUserApproved'])->group(function () 
     Route::get('/bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
     Route::get('/bitacora/export', [BitacoraController::class, 'export'])->name('bitacora.export');
 
-    Route::prefix('notificaciones')->group(function () {
-        Route::get('/todas', [NotificacionController::class, 'index'])->name('notificaciones.index');
-        Route::get('/mis-notificaciones', [NotificacionController::class, 'misNotificaciones'])->name('user.notificaciones');
-        Route::post('/marcar-leidas', [NotificacionController::class, 'marcarComoLeidas'])->name('notifications.markRead');
-        Route::post('/{id}/leer', [NotificacionController::class, 'marcarUnaLeida'])->name('notifications.readOne');
-    });
+    Route::post('/notificaciones/marcar-leidas', [NotificacionController::class, 'marcarComoLeidas'])
+    ->name('notificaciones.leer');
 });
 
 // 3. PANEL ADMINISTRADOR

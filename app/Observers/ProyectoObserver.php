@@ -8,15 +8,35 @@ use Illuminate\Support\Facades\Auth;
 
 class ProyectoObserver
 {
-    public function created(Proyecto $proyecto)
-    {
-        $this->registrar('Creación', "Creó un nuevo proyecto: {$proyecto->titulo}");
+    public function created(Proyecto $proyecto): void
+{
+    // Supongamos que el proyecto tiene un 'user_id' asignado
+    if ($proyecto->user_id) {
+        \App\Models\Actividad::create([
+            'user_id'  => $proyecto->user_id,
+            'leido'    => 0,
+            'accion'   => 'Proyecto',
+            'tipo'     => 'notificacion',
+            'modelo'   => 'Proyecto',
+            'detalles' => "Se te ha asignado un nuevo proyecto: {$proyecto->nombre}",
+        ]);
     }
+}
+    public function updated(Proyecto $proyecto): void
+{
 
-    public function updated(Proyecto $proyecto)
-    {
-        $this->registrar('Actualización', "Actualizó el proyecto: {$proyecto->titulo}");
+    if ($proyecto->wasChanged() && $proyecto->user_id !== Auth::id()) {
+        Actividad::create([
+            'user_id'  => $proyecto->user_id,
+            'leido'    => 0,
+            'accion'   => 'Actualización',
+            'tipo'     => 'notificacion',
+            'modelo'   => 'Proyecto',
+            'detalles' => "Tu proyecto '{$proyecto->nombre}' ha sido actualizado por un administrador.",
+        ]);
     }
+}
+
 
     public function deleted(Proyecto $proyecto)
     {

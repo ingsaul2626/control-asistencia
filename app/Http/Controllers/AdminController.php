@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Asistencia;
 use App\Models\Proyecto;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +14,15 @@ class AdminController extends Controller
 
  public function index()
 {
+
+    $asistencias = Asistencia::whereDate('fecha', now()->format('Y-m-d'))->get();
+
+    $topUsuarios = User::where('role', 'user')
+        ->withCount('asistencias')
+        ->orderBy('asistencias_count', 'desc')
+        ->take(5)
+        ->get();
+
     $hoy = now()->toDateString();
 
     // 1. Estadísticas básicas
@@ -54,7 +65,11 @@ class AdminController extends Controller
         'porcentajeAsistencias',
         'usuariosAusentes',
         'usuariosPendientes',
-        'proyectos'
+        'proyectos',
+        'asistencias',
+        'topUsuarios'
+
+
     ));
 }
 

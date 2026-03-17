@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Actividad;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NotificacionController extends Controller
@@ -13,22 +12,30 @@ class NotificacionController extends Controller
      */
     public function index()
     {
-        $actividades = Actividad::with('user')->latest()->paginate(15);
+        // MEJORA: El admin ve todo, pero filtramos para que NO vea sus propias acciones
+        // Así la campana del admin no se llena con "Admin actualizó proyecto"
+        $actividades  = Actividad::where('user_id', Auth::id())
+            ->where('user_id', '!=', Auth::id()) // Solo si quieres que el admin vea lo de otros
+            ->latest()
+            ->take(10)
+            ->get();
 
-        // El admin cuenta lo global
-        $conteo = Actividad::where('leido', false)->count();
+        // El conteo también debe ignorar las acciones del propio admin
+        $conteo = Actividad::where('leido', false)
+            ->where('user_id', '!=', Auth::id()) // <--- Filtro clave
+            ->count();
 
         return view('admin.notificaciones', compact('actividades', 'conteo'));
     }
 
     /**
-     * Vista para el usuarios (Sus proyectos asignados)
+     * Vista para los usuarios (Sus proyectos y asistencias)
      */
     public function misNotificaciones()
     {
+        // Aquí está perfecto como lo tenías
         $actividades = Actividad::where('user_id', Auth::id())->latest()->paginate(15);
 
-        // Saúl solo cuenta las suyas
         $conteo = Actividad::where('user_id', Auth::id())
             ->where('leido', false)
             ->count();
@@ -37,26 +44,26 @@ class NotificacionController extends Controller
     }
 
     /**
-     * Marca como leídas y REDIRECCIONA (Para que el botón del Navbar funcione)
+     * Marca como leídas y regresa
      */
     public function marcarComoLeidas()
-    {
-        $users = Auth::user();
+{
+    $user = Auth::user();
 
-        if ($users->role === 'admin') {
-            // Si el admin limpia, marca TODO como leido (opcional, según tu lógica)
-            Actividad::where('leido', false)->update(['leido' => true]);
-        } else {
-            // El usuarios marca solo lo suyo
-            Actividad::where('user_id', $users->id)
-                ->where('leido', false)
-                ->update(['leido' => true]);
-        }
+    if ($user->role === 'admin') {
+        // El admin limpia lo de los demás (lo que ve en su campana)
+        Actividad::where('user_id', Auth::id())->update(['leido' => 1]);
 
-        // CAMBIO CLAVE: Usar back() en lugar de response()->json()
-        return back()->with('success', 'Notificaciones actualizadas');
+
+    } else {
+        // El usuario normal limpia lo suyo
+        Actividad::where('user_id', $user->id)
+            ->where('leido', false)
+            ->update(['leido' => true]);
     }
 
+    return back()->with('success', 'Notificaciones actualizadas');
+}
     /**
      * Marca una sola y regresa
      */

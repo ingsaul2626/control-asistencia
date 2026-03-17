@@ -18,6 +18,7 @@ class Bitacora extends Model
         'accion',
         'detalles',
         'ip'
+        
     ];
 
     /**

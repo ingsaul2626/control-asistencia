@@ -108,7 +108,7 @@
 
         <footer class="py-10 text-center">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                &copy; {{ date('Y') }} {{ config('app.name') }} — Core System v2.0
+                &copy; {{ date('Y') }} {{ config('app.name') }} — Core System for Personnel Management
             </p>
         </footer>
 

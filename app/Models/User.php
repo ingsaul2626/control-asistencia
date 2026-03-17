@@ -8,11 +8,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable;
 
 
     protected $fillable = [
@@ -142,6 +142,10 @@ class User extends Authenticatable
     return $this->role === 'operador';
     }
 
+    public function proyectos()
+{
+    return $this->hasMany(Proyecto::class);
+}
 
 
     //is_approved es un booleano que indica si el usuario ha sido aprobado por un admin

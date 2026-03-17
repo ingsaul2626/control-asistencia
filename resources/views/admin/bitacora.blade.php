@@ -34,6 +34,10 @@
                 <div>
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Acción</label>
                     <select id="filterAccion" class="w-full rounded-xl border-gray-200 bg-white px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 transition-all shadow-sm">
+                        <option value="">Todas</option>
+                        <option value="Creación">Creación</option>
+                        <option value="Edición">Edición</option>
+                        <option value="Eliminación">Eliminación</option>
                         <option value="Inicio de sesión">Login</option>
                     </select>
                 </div>

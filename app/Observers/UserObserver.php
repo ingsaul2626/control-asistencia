@@ -2,45 +2,50 @@
 
 namespace App\Observers;
 
-use App\Models\User; // Cambiado de Trabajador a User
+use App\Models\User;
 use App\Models\Bitacora;
 use Illuminate\Support\Facades\Auth;
 
-class TrabajadorObserver
+class UserObserver // Cambia el nombre a UserObserver
 {
-    // Se ejecuta tras CREAR un registro
     public function created(User $user): void
     {
         Bitacora::create([
-            'user_id'  => Auth::id(),
+
+            'user_id'  => Auth::id() ?? $user->id,
             'accion'   => 'Creación',
-            'detalles' => "Se registró al usuario: {$user->name}", // Ajusta 'nombre' si tu columna es 'name'
+            'detalles' => "Se registró al usuario: {$user->name}",
             'ip'       => request()->ip(),
         ]);
+
     }
 
-    // Se ejecuta tras EDITAR un registro
     public function updated(User $user): void
     {
+        // Obtenemos solo lo que cambió
         $cambios = $user->getChanges();
-        unset($cambios['updated_at'], $cambios['password']); // Buena práctica: nunca guardar la contraseña en la bitácora
 
-        Bitacora::create([
-            'user_id'  => Auth::id(),
-            'accion'   => 'Edición',
-            'detalles' => "Se editó al usuario {$user->name}. Cambios: " . json_encode($cambios),
-            'ip'       => request()->ip(),
-        ]);
+        // Quitamos datos que no queremos ver en la bitácora (seguridad)
+        unset($cambios['updated_at'], $cambios['password']);
+
+        if (count($cambios) > 0) {
+            Bitacora::create([
+                'user_id'  => Auth::id() ?? 0, // ID del administrador que editó
+                'accion'   => 'Edición',
+                'detalles' => "Editado usuario ID: {$user->id} ({$user->name}). Cambios: " . json_encode($cambios),
+                'ip'       => request()->ip(),
+            ]);
+        }
     }
 
-    // Se ejecuta tras ELIMINAR un registro
     public function deleted(User $user): void
-    {
-        Bitacora::create([
-            'user_id'  => Auth::id(),
-            'accion'   => 'Eliminación',
-            'detalles' => "Se eliminó el registro del usuario: {$user->name}",
-            'ip'       => request()->ip(),
-        ]);
-    }
+{
+    Bitacora::create([
+        'user_id'  => Auth::id() ?? $user->id,
+        'accion'   => 'Eliminación',
+        'detalles' => "Se eliminó al usuario: {$user->name} (Cédula: {$user->cedula})",
+        'ip'       => request()->ip(),
+    ]);
+}
+
 }

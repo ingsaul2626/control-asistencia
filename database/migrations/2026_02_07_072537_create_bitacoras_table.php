@@ -13,11 +13,11 @@ return new class extends Migration
 {
     Schema::create('bitacoras', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relación con usuarios
-        $table->string('accion');    // Ejemplo: "Inició sesión", "Creó un reporte"
+        $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+        $table->string('accion');
         $table->text('detalles')->nullable();
         $table->string('ip')->nullable();
-        $table->timestamps(); // Crea created_at y updated_at
+        $table->timestamps();
     });
 }
 
