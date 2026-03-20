@@ -1,39 +1,38 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h2 class="font-bold text-2xl text-gray-900 tracking-tight">
+            <h2 class="font-black text-2xl text-slate-800 leading-tight uppercase tracking-tighter italic">
                 {{ __('Bitácora de Actividades') }}
             </h2>
-            <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            {{-- Cambio: Indicador de actividad en naranja --}}
+            <div class="flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-slate-100 shadow-sm">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-uptag-orange"></span>
                 </span>
-                <span class="text-sm font-semibold text-gray-600">
-                    {{-- CAMBIO: Usamos $bitacoras aquí --}}
+                <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">
                     {{ $bitacoras->total() }} registros encontrados
                 </span>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-8">
+    <div class="py-8 bg-slate-50/50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            {{-- FILTROS MODERNOS --}}
+            {{-- FILTROS MODERNOS CON ACENTOS NARANJA --}}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Buscar usuarios</label>
-                    {{-- CAMBIO: ID corregido a filterUsuario --}}
-                    <input type="text" id="filterUsuario" class="w-full rounded-xl border-gray-200 bg-white px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 transition-all shadow-sm" placeholder="Escribe un nombre...">
+                <div class="md:col-span-2 group">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 block group-hover:text-uptag-orange transition-colors">Buscar usuarios</label>
+                    <input type="text" id="filterUsuario" class="w-full rounded-2xl border-slate-100 bg-white px-5 py-3 focus:border-uptag-orange focus:ring-uptag-orange transition-all shadow-sm text-sm font-bold text-slate-600 placeholder-slate-300" placeholder="Escribe un nombre...">
                 </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Fecha</label>
-                    <input type="date" id="filterFecha" class="w-full rounded-xl border-gray-200 bg-white px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 transition-all shadow-sm">
+                <div class="group">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 block group-hover:text-uptag-orange transition-colors">Fecha</label>
+                    <input type="date" id="filterFecha" class="w-full rounded-2xl border-slate-100 bg-white px-5 py-3 focus:border-uptag-orange focus:ring-uptag-orange transition-all shadow-sm text-sm font-bold text-slate-600">
                 </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Acción</label>
-                    <select id="filterAccion" class="w-full rounded-xl border-gray-200 bg-white px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 transition-all shadow-sm">
+                <div class="group">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 block group-hover:text-uptag-orange transition-colors">Acción</label>
+                    <select id="filterAccion" class="w-full rounded-2xl border-slate-100 bg-white px-5 py-3 focus:border-uptag-orange focus:ring-uptag-orange transition-all shadow-sm text-sm font-bold text-slate-600 appearance-none">
                         <option value="">Todas</option>
                         <option value="Creación">Creación</option>
                         <option value="Edición">Edición</option>
@@ -43,48 +42,48 @@
                 </div>
             </div>
 
-            {{-- TABLA --}}
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            {{-- TABLA ESTILIZADA --}}
+            <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white overflow-hidden">
                 <div class="overflow-x-auto">
                     <table id="tablaBitacora" class="w-full text-left border-collapse">
-                        <thead class="bg-gray-50 border-b border-gray-100">
+                        <thead class="bg-slate-50/80 border-b border-slate-100">
                             <tr>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Usuario</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Acción</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Detalles</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">IP</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Momento</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Usuario</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Acción</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Detalles</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">IP</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Momento</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            {{-- CAMBIO: Unificado a $bitacoras --}}
+                        <tbody class="divide-y divide-slate-50">
                             @forelse($bitacoras as $log)
-                                <tr class="hover:bg-blue-50/30 transition-colors">
-                                    <td class="px-6 py-5 font-semibold text-gray-700">{{ $log->user->name ?? 'Sistema' }}</td>
-                                    <td class="px-6 py-5">
-                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest
+                                {{-- Cambio: Hover en naranja suave --}}
+                                <tr class="hover:bg-orange-50/40 transition-colors group">
+                                    <td class="px-8 py-5 font-bold text-slate-700 text-sm italic group-hover:text-uptag-orange transition-colors">{{ $log->user->name ?? 'Sistema' }}</td>
+                                    <td class="px-8 py-5">
+                                        {{-- Cambio: Badge naranja para edición y login --}}
+                                        <span class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest
                                             {{ $log->accion == 'Eliminación' ? 'bg-red-50 text-red-600' : '' }}
                                             {{ $log->accion == 'Creación' ? 'bg-emerald-50 text-emerald-600' : '' }}
-                                            {{ $log->accion == 'Edición' ? 'bg-blue-50 text-blue-600' : '' }}
-                                            {{ $log->accion == 'Inicio de sesión' ? 'bg-amber-50 text-amber-600' : '' }}">
+                                            {{ $log->accion == 'Edición' ? 'bg-orange-50 text-uptag-orange' : '' }}
+                                            {{ $log->accion == 'Inicio de sesión' ? 'bg-orange-100/50 text-orange-600' : '' }}">
                                             {{ $log->accion }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-5 text-gray-500 text-sm max-w-xs truncate">{{ $log->detalles }}</td>
-                                    <td class="px-6 py-5 text-gray-400 font-mono text-xs">{{ $log->ip }}</td>
-                                    {{-- Usamos formato de fecha normal para que el filtro JS funcione mejor --}}
-                                    <td class="px-6 py-5 text-gray-500 text-xs" data-order="{{ $log->created_at }}">
+                                    <td class="px-8 py-5 text-slate-500 text-xs max-w-xs truncate font-medium">{{ $log->detalles }}</td>
+                                    <td class="px-8 py-5 text-slate-400 font-mono text-[10px]">{{ $log->ip }}</td>
+                                    <td class="px-8 py-5 text-slate-500 text-[11px] font-bold" data-order="{{ $log->created_at }}">
                                         {{ $log->created_at->format('d/m/Y H:i') }}
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="px-6 py-10 text-center text-gray-400">Sin registros.</td></tr>
+                                <tr><td colspan="5" class="px-8 py-12 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">Sin registros encontrados.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                {{-- Paginación de Laravel (importante si usas ->paginate()) --}}
-                <div class="px-6 py-4 bg-gray-50">
+
+                <div class="px-8 py-6 bg-slate-50/50 border-t border-slate-100 bitacora-pagination">
                     {{ $bitacoras->links() }}
                 </div>
             </div>
@@ -95,6 +94,25 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+<style>
+    /* Estilización de DataTables para que coincida con el tema naranja */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #f97316 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: bold !important;
+    }
+    .dataTables_wrapper .dataTables_info {
+        font-size: 11px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.1em !important;
+        color: #94a3b8 !important;
+        font-weight: 800 !important;
+        padding-top: 1.5rem !important;
+    }
+</style>
 
 <script>
 $(document).ready(function() {
@@ -107,20 +125,16 @@ $(document).ready(function() {
         "order": [[4, "desc"]]
     });
 
-    // Filtro de Usuario
     $('#filterUsuario').on('keyup', function() {
         table.column(0).search(this.value).draw();
     });
 
-    // Filtro de Acción
     $('#filterAccion').on('change', function() {
         table.column(1).search(this.value).draw();
     });
 
-    // Filtro de Fecha
     $('#filterFecha').on('change', function() {
         if(this.value) {
-            // Reajuste para corregir desfase de zona horaria en JS
             var dateParts = this.value.split('-');
             var formattedDate = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0];
             table.column(4).search(formattedDate).draw();

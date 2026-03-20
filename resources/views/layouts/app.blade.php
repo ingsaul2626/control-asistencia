@@ -26,10 +26,12 @@
 
             /* DataTables Custom Base */
             .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-                background: #4f46e5 !important;
+                /* Cambio: background: #4f46e5 -> #FF8000 (uptag-orange) */
+                background: #FF8000 !important;
                 color: white !important;
                 border: none !important;
                 border-radius: 12px !important;
+                box-shadow: 0 4px 12px rgba(255, 128, 0, 0.2);
             }
         </style>
     </head>

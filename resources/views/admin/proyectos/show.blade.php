@@ -18,34 +18,30 @@
             {{-- Columna Principal (2/3) --}}
             <div class="lg:col-span-2 space-y-6">
 
-                {{-- NUEVO SECCIÓN: Imagen Principal del Proyecto --}}
+                {{-- SECCIÓN: Imagen Principal del Proyecto --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    {{-- Cabecera sutil de la sección --}}
                     <div class="px-6 py-4 border-b border-slate-100">
                         <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {{-- Cambio: text-uptag-orange --}}
+                            <svg class="w-4 h-4 text-uptag-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             Visualización del Proyecto
                         </h3>
                     </div>
 
-                    {{-- Contenedor de la imagen --}}
                     <div class="p-2 bg-slate-50">
                         @if($proyecto->imagen)
-                            {{-- Imagen existente con efecto hover para zoom --}}
                             <div class="relative group overflow-hidden rounded-xl aspect-[16/10] shadow-inner border border-slate-200 bg-white">
                                 <img src="{{ asset('storage/' . $proyecto->imagen) }}"
                                      alt="Imagen de {{ $proyecto->titulo }}"
                                      class="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110">
 
-                                {{-- Overlay sutil al hacer hover --}}
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                                     <p class="text-white text-xs font-medium">Vista previa de la obra</p>
                                 </div>
                             </div>
                         @else
-                            {{-- Estado sin imagen (Placeholder) --}}
                             <div class="flex flex-col items-center justify-center rounded-xl aspect-[16/10] border-2 border-dashed border-slate-200 bg-white text-slate-400">
                                 <svg class="w-16 h-16 mb-4 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -82,16 +78,21 @@
 
             {{-- Sidebar Lateral (1/3) --}}
             <div class="space-y-6">
-                {{-- Responsable --}}
-                <div class="bg-indigo-900 rounded-2xl p-5 text-white">
-                    <p class="text-[9px] text-indigo-300 font-bold uppercase mb-3">Responsable</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-indigo-800 rounded-full flex items-center justify-center shrink-0 text-xs font-bold hover:scale-110 transition-transform cursor-default" title="{{ $proyecto->user->name ?? 'Usuario' }}">
+                {{-- Responsable - Cambio: bg-slate-900 con toques de uptag-orange --}}
+                <div class="bg-slate-900 rounded-2xl p-5 text-white relative overflow-hidden">
+                    {{-- Brillo decorativo naranja --}}
+                    <div class="absolute -top-10 -right-10 w-24 h-24 bg-uptag-orange/10 rounded-full blur-3xl"></div>
+
+                    <p class="text-[9px] text-slate-400 font-bold uppercase mb-3 tracking-widest">Responsable</p>
+                    <div class="flex items-center gap-3 relative z-10">
+                        {{-- Cambio: bg-uptag-orange --}}
+                        <div class="w-10 h-10 bg-uptag-orange rounded-full flex items-center justify-center shrink-0 text-xs font-black hover:scale-110 transition-transform cursor-default" title="{{ $proyecto->user->name ?? 'Usuario' }}">
                             {{ substr($proyecto->user->name ?? 'U', 0, 1) }}
                         </div>
                         <div class="min-w-0">
                             <p class="text-sm font-bold truncate">{{ $proyecto->user->name ?? 'Sin asignar' }}</p>
-                            <p class="text-[10px] text-indigo-300 truncate">{{ $proyecto->user->email ?? 'N/A' }}</p>
+                            {{-- Cambio: text-uptag-orange/80 --}}
+                            <p class="text-[10px] text-uptag-orange/80 font-medium truncate">{{ $proyecto->user->email ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>
@@ -99,32 +100,32 @@
                 {{-- Documentación --}}
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {{-- Cambio: text-uptag-orange --}}
+                        <svg class="w-4 h-4 text-uptag-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Documentación
                     </h3>
 
                     @if($proyecto->archivo)
-                        <div class="group relative bg-slate-50 rounded-xl p-4 border-2 border-dashed border-slate-200 hover:border-indigo-300 transition-colors">
+                        {{-- Cambio: hover:border-orange-300 --}}
+                        <div class="group relative bg-slate-50 rounded-xl p-4 border-2 border-dashed border-slate-200 hover:border-orange-300 transition-colors">
                             <div class="flex flex-col items-center text-center">
-                                {{-- Miniatura Visual --}}
                                 <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
                                     <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h2a2 2 0 002-2V9l-3-3V3a2 2 0 00-2-2z" />
                                     </svg>
                                 </div>
 
-                                {{-- Nombre del archivo (Limpiando la ruta) --}}
                                 <p class="text-xs font-medium text-slate-700 truncate w-full px-2" title="{{ basename($proyecto->archivo) }}">
                                     {{ basename($proyecto->archivo) }}
                                 </p>
 
                                 <p class="text-[10px] text-slate-400 uppercase mt-1">Documento PDF</p>
 
-                                {{-- Botón de descarga --}}
+                                {{-- Cambio: bg-uptag-orange hover:bg-orange-600 --}}
                                 <a href="{{ route('user.proyectos.descargar', $proyecto->id) }}"
-                                class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-all shadow-md active:scale-95">
+                                class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-uptag-orange text-white text-xs font-bold rounded-lg hover:bg-orange-600 transition-all shadow-md active:scale-95">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
@@ -144,4 +145,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>s
+</x-app-layout>

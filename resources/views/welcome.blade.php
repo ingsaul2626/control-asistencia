@@ -16,24 +16,24 @@
     <header class="sticky top-0 z-50 w-full bg-white/70 backdrop-blur-xl border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3 group">
-                <div class="w-11 h-11 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 transition-transform group-hover:rotate-6">
+                <div class="w-11 h-11 bg-uptag-orange rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200 transition-transform group-hover:rotate-6">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6 text-white">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                     </svg>
                 </div>
                 <span class="text-xl font-black tracking-tighter uppercase italic text-slate-800">
-                    Ingeniería<span class="text-indigo-600 font-extrabold not-italic">UPTAG</span>
+                    Ingeniería<span class="text-uptag-orange font-extrabold not-italic">UPTAG</span>
                 </span>
             </div>
 
             <nav class="flex items-center gap-4">
                 @if (Route::has('login'))
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 bg-slate-900 text-white rounded-2xl transition-all hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-100 active:scale-95">Inicio</a>
+                        <a href="{{ url('/dashboard') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 bg-slate-900 text-white rounded-2xl transition-all hover:bg-uptag-orange hover:shadow-xl hover:shadow-orange-100 active:scale-95">Inicio</a>
                     @else
-                        <a href="{{ route('login') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 text-slate-600 hover:text-indigo-600 transition-colors">Entrar</a>
+                        <a href="{{ route('login') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 text-slate-600 hover:text-uptag-orange transition-colors">Entrar</a>
                         @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">Comenzar</a>
+                            <a href="{{ route('register') }}" class="text-[11px] font-black uppercase tracking-widest px-6 py-3 bg-uptag-orange text-white rounded-2xl shadow-lg shadow-orange-100 hover:bg-orange-600 transition-all active:scale-95">Comenzar</a>
                         @endif
                     @endauth
                 @endif
@@ -44,13 +44,13 @@
     <main class="max-w-7xl mx-auto px-6">
 
         <section class="py-20 lg:py-32 relative">
-            <div class="absolute top-0 -left-20 w-72 h-72 bg-indigo-100 rounded-full blur-[120px] opacity-50 -z-10"></div>
+            <div class="absolute top-0 -left-20 w-72 h-72 bg-orange-100 rounded-full blur-[120px] opacity-50 -z-10"></div>
             <div class="max-w-4xl">
-                <span class="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-6">
+                <span class="inline-block px-4 py-1.5 bg-orange-50 text-uptag-orange text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-6">
                     Módulo de Operaciones v2.0
                 </span>
                 <h1 class="text-6xl lg:text-8xl font-black text-slate-900 mb-8 tracking-tighter leading-[0.9]">
-                    Control de Proyectos <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-400">&</span> Asistencia.
+                Control de Proyectos <span class="text-transparent bg-clip-text bg-gradient-to-r from-uptag-orange to-orange-400">&</span> Asistencia.
                 </h1>
                 <p class="text-lg lg:text-xl text-slate-500 max-w-2xl font-medium leading-relaxed">
                     Plataforma técnica para la supervisión centralizada de proyectos, despliegue de personal operativo y métricas de rendimiento en tiempo real.
@@ -60,19 +60,17 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
             @forelse($proyectos as $proyecto)
-                <article class="group relative bg-white border border-slate-100 rounded-[2.5rem] p-3 transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(79,70,229,0.15)] hover:-translate-y-2">
+                <article class="group relative bg-white border border-slate-100 rounded-[2.5rem] p-3 transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(241,128,0,0.15)] hover:-translate-y-2">
 
                     <a href="{{ route('admin.proyectos.show', $proyecto->id) }}" class="block">
 
-                        {{-- Badge de Fecha --}}
                         <div class="absolute top-6 right-6 z-10">
                             <div class="px-4 py-2 bg-white/90 backdrop-blur-md shadow-sm rounded-2xl text-center">
                                 <span class="block text-xs font-black text-slate-800 leading-none">{{ \Carbon\Carbon::parse($proyecto->fecha)->format('d') }}</span>
-                                <span class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest">{{ \Carbon\Carbon::parse($proyecto->fecha)->format('M') }}</span>
+                                <span class="block text-[8px] font-bold text-uptag-orange uppercase tracking-widest">{{ \Carbon\Carbon::parse($proyecto->fecha)->format('M') }}</span>
                             </div>
                         </div>
 
-                        {{-- Imagen --}}
                         <div class="aspect-[16/11] w-full overflow-hidden rounded-[2rem] bg-slate-100 relative mb-6">
                             @if($proyecto->imagen)
                                 <img src="{{ asset('storage/' . $proyecto->imagen) }}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="{{ $proyecto->titulo }}">
@@ -85,23 +83,22 @@
 
                         <div class="px-5 pb-2">
                             <div class="flex items-center gap-2 mb-3">
-                                <div class="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
+                                <div class="h-1.5 w-1.5 rounded-full bg-uptag-orange animate-pulse"></div>
                                 <span class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
                                     {{ $proyecto->lugar ?? 'Campo Tecnológico' }}
                                 </span>
                             </div>
 
-                            <h3 class="text-2xl font-extrabold text-slate-800 mb-6 tracking-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
+                            <h3 class="text-2xl font-extrabold text-slate-800 mb-6 tracking-tight group-hover:text-uptag-orange transition-colors line-clamp-2">
                                 {{ $proyecto->titulo }}
                             </h3>
                         </div>
                     </a>
 
-                    {{-- Footer --}}
                     <div class="px-5 pb-6">
                         <div class="flex items-center justify-between pt-5 border-t border-slate-50">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white text-[10px] font-black shadow-inner">
+                                <div class="w-10 h-10 rounded-xl bg-uptag-gray flex items-center justify-center text-white text-[10px] font-black shadow-inner">
                                     {{ strtoupper(substr($proyecto->user->name ?? '?', 0, 2)) }}
                                 </div>
                                 <div>
@@ -110,7 +107,7 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('admin.proyectos.show', $proyecto->id) }}" class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-300 hover:scale-110 group-hover:border-indigo-100 group-hover:text-indigo-500 transition-all">
+                            <a href="{{ route('admin.proyectos.show', $proyecto->id) }}" class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-300 hover:scale-110 group-hover:border-orange-100 group-hover:text-uptag-orange transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </a>
                         </div>
@@ -132,7 +129,7 @@
         <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
             <div class="flex flex-col items-center md:items-start">
                 <span class="text-lg font-black text-white tracking-tighter uppercase italic mb-2">
-                    Ingeniería<span class="text-indigo-400">UPTAG</span>
+                    Ingeniería<span class="text-uptag-orange">UPTAG</span>
                 </span>
                 <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">© 2026 Core Operations System</p>
             </div>

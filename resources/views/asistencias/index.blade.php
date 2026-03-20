@@ -13,39 +13,41 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- CABECERA E INFO --}}
-         <div class="mb-8 p-8 bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 relative overflow-hidden group">
-    <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px] transition-all group-hover:bg-indigo-500/30"></div>
+            <div class="mb-8 p-8 bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 relative overflow-hidden group">
+                {{-- Cambio: Brillo decorativo a uptag-orange --}}
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-uptag-orange/20 rounded-full blur-[100px] transition-all group-hover:bg-uptag-orange/30"></div>
 
-    <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
-        <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
-            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Operador</span>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                <span class="text-emerald-400 font-bold text-sm tracking-tight">{{ auth()->user()->name }}</span>
+                    <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Operador</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                            <span class="text-emerald-400 font-bold text-sm tracking-tight">{{ auth()->user()->name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Sincronización</span>
+                        <span class="text-white font-mono text-sm tracking-tight">{{ now()->format('d M, Y') }}</span>
+                        <span class="text-[10px] font-mono text-slate-500">{{ now()->format('H:i:s') }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Filtro Activo</span>
+                        {{-- Cambio: bg-uptag-orange/10 text-uptag-orange --}}
+                        <span class="text-uptag-orange font-mono text-sm tracking-tight bg-uptag-orange/10 px-2 py-1 rounded-lg w-fit">{{ $fecha }}</span>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Tráfico de Hoy</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-white font-black text-2xl tracking-tighter">{{ $asistenciasHoy->count() }}</span>
+                            <span class="text-slate-500 text-xs font-bold uppercase">Registros</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
-            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Sincronización</span>
-            <span class="text-white font-mono text-sm tracking-tight">{{ now()->format('d M, Y') }}</span>
-            <span class="text-[10px] font-mono text-slate-500">{{ now()->format('H:i:s') }}</span>
-        </div>
-
-        <div class="flex flex-col gap-1 border-b border-slate-800 pb-4 md:border-none md:pb-0">
-            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Filtro Activo</span>
-            <span class="text-indigo-300 font-mono text-sm tracking-tight bg-indigo-500/10 px-2 py-1 rounded-lg w-fit">{{ $fecha }}</span>
-        </div>
-
-        <div class="flex flex-col gap-1">
-            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Tráfico de Hoy</span>
-            <div class="flex items-baseline gap-2">
-                <span class="text-white font-black text-2xl tracking-tighter">{{ $asistenciasHoy->count() }}</span>
-                <span class="text-slate-500 text-xs font-bold uppercase">Registros</span>
-            </div>
-        </div>
-    </div>
-</div>
 
             {{-- TABLA DE REGISTROS --}}
             <div class="bg-white shadow-2xl shadow-slate-200/50 rounded-[2.5rem] overflow-hidden border border-slate-100 p-4 sm:p-8">
@@ -64,12 +66,11 @@
                             @php
                                 $asistencia = $asistenciasHoy->get($usuario->id);
 
-                                // Construcción del objeto $res para evitar el error de variable indefinida
                                 $res = new \stdClass();
                                 if (!$asistencia) {
                                     $res->label = 'PENDIENTE';
                                     $res->clase_punto = 'bg-slate-300';
-                                    $res->clase_boton = 'bg-indigo-600';
+                                    $res->clase_boton = 'bg-uptag-orange'; // Cambio: bg-uptag-orange
                                     $res->boton = 'ASIGNAR';
                                 } else {
                                     $res->label = strtoupper($asistencia->status);
@@ -96,17 +97,19 @@
                                     @csrf
                                     <input type="hidden" name="user_id" value="{{ $usuario->id }}">
                                     <td class="px-6 py-5 text-center">
-                                        <input type="time" name="hora_entrada" value="{{ $asistencia && $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('H:i') : '' }}" class="text-sm font-black text-slate-600 bg-slate-100/50 rounded-xl p-2 w-28 text-center">
+                                        {{-- Cambio: focus:ring-orange-100 --}}
+                                        <input type="time" name="hora_entrada" value="{{ $asistencia && $asistencia->hora_entrada ? \Carbon\Carbon::parse($asistencia->hora_entrada)->format('H:i') : '' }}" class="text-sm font-black text-slate-600 bg-slate-100/50 rounded-xl p-2 w-28 text-center focus:ring-orange-100 border-transparent">
                                     </td>
                                     <td class="px-6 py-5 text-center">
-                                        <input type="time" name="hora_salida" value="{{ $asistencia && $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('H:i') : '' }}" class="text-sm font-black text-indigo-600 bg-indigo-50/50 rounded-xl p-2 w-28 text-center">
+                                        {{-- Cambio: text-uptag-orange bg-orange-50/50 focus:ring-orange-100 --}}
+                                        <input type="time" name="hora_salida" value="{{ $asistencia && $asistencia->hora_salida ? \Carbon\Carbon::parse($asistencia->hora_salida)->format('H:i') : '' }}" class="text-sm font-black text-uptag-orange bg-orange-50/50 rounded-xl p-2 w-28 text-center focus:ring-orange-100 border-transparent">
                                     </td>
                                     <td class="px-6 py-5 text-center">
-                                        <input type="text" name="observaciones" value="{{ $asistencia->observaciones ?? '' }}" placeholder="Añadir..." class="text-xs font-medium text-slate-500 bg-slate-100/50 rounded-xl w-full p-2">
+                                        <input type="text" name="observaciones" value="{{ $asistencia->observaciones ?? '' }}" placeholder="Añadir..." class="text-xs font-medium text-slate-500 bg-slate-100/50 rounded-xl w-full p-2 focus:ring-orange-100 border-transparent">
                                     </td>
                                     <td class="px-6 py-5 text-right rounded-r-3xl">
                                         <div class="flex justify-end items-center gap-2">
-                                            <button type="submit" class="{{ $res->clase_boton }} text-white text-[10px] font-black px-5 py-2.5 rounded-xl transition-all hover:-translate-y-1 uppercase tracking-widest">
+                                            <button type="submit" class="{{ $res->clase_boton }} text-white text-[10px] font-black px-5 py-2.5 rounded-xl transition-all hover:-translate-y-1 uppercase tracking-widest shadow-lg shadow-orange-500/10">
                                                 {{ $res->boton }}
                                             </button>
                                             </form>
@@ -145,33 +148,10 @@
                     "dom": '<"flex flex-col md:flex-row justify-between items-center mb-6"f>rt<"flex justify-between items-center mt-6"ip>',
                 });
 
-                // Estilizar buscador
-                $('.dataTables_filter input').addClass('bg-white border-slate-200 rounded-2xl text-sm px-6 py-3 focus:ring-4 focus:ring-indigo-100 outline-none border transition-all w-full md:w-80 shadow-sm');
+                // Estilizar buscador - Cambio: focus:ring-orange-100
+                $('.dataTables_filter input').addClass('bg-white border-slate-200 rounded-2xl text-sm px-6 py-3 focus:ring-4 focus:ring-orange-100 outline-none border transition-all w-full md:w-80 shadow-sm');
             }
         });
-
-        function confirmarFaltaCustom(boton) {
-            const form = boton.closest('form');
-            Swal.fire({
-                title: '¿Reportar Inasistencia?',
-                text: "El registro se marcará como FALTA para la jornada de hoy.",
-                icon: 'error',
-                showCancelButton: true,
-                confirmButtonColor: '#f43f5e',
-                cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'SÍ, MARCAR FALTA',
-                cancelButtonText: 'CANCELAR',
-                customClass: {
-                    popup: 'rounded-[2.5rem] border-none shadow-2xl',
-                    confirmButton: 'rounded-xl font-black uppercase text-xs tracking-widest px-6 py-3',
-                    cancelButton: 'rounded-xl font-black uppercase text-xs tracking-widest px-6 py-3'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        }
     </script>
 
     <style>
@@ -181,5 +161,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
         .dataTables_paginate .paginate_button { @apply !rounded-xl !border-none !font-bold !text-xs !tracking-widest !px-4 !py-2; }
-        .dataTables_paginate .paginate_button.current { @apply !bg-indigo-600 !text-white !shadow-lg !shadow-indigo-200; }
+        /* Cambio: bg-uptag-orange !shadow-orange-200 */
+        .dataTables_paginate .paginate_button.current { @apply !bg-uptag-orange !text-white !shadow-lg !shadow-orange-200; }
     </style>

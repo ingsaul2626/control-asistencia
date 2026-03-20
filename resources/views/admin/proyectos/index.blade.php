@@ -13,7 +13,8 @@
             {{-- Formulario Principal: Estilo Card Flotante con Borde Suave --}}
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 transition-all hover:shadow-md">
                 <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">🏗️</div>
+                    {{-- Cambio: bg-orange-100 text-uptag-orange --}}
+                    <div class="w-8 h-8 rounded-lg bg-orange-100 text-uptag-orange flex items-center justify-center">🏗️</div>
                     Nuevo Proyecto
                 </h2>
 
@@ -23,18 +24,21 @@
                         <div class="md:col-span-2 space-y-6">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Nombre del Proyecto</label>
-                                <input type="text" name="titulo" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 px-4 py-3" placeholder="Ej: Edificio Central fase II" required>
+                                {{-- Cambio: focus:ring-uptag-orange --}}
+                                <input type="text" name="titulo" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-uptag-orange px-4 py-3" placeholder="Ej: Edificio Central fase II" required>
                             </div>
-                            
+
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Descripción Técnica</label>
-                                <textarea name="descripcion" rows="3" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 px-4 py-3" placeholder="Detalles relevantes..."></textarea>
+                                {{-- Cambio: focus:ring-uptag-orange --}}
+                                <textarea name="descripcion" rows="3" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-uptag-orange px-4 py-3" placeholder="Detalles relevantes..."></textarea>
                             </div>
 
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Categoría</label>
-                                    <select name="tipo" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 px-4 py-3">
+                                    {{-- Cambio: focus:ring-uptag-orange --}}
+                                    <select name="tipo" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-uptag-orange px-4 py-3">
                                         <option>Obra Civil</option>
                                         <option>Mantenimiento</option>
                                         <option>Infraestructura</option>
@@ -42,7 +46,8 @@
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Responsable</label>
-                                    <select name="user_id" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 px-4 py-3">
+                                    {{-- Cambio: focus:ring-uptag-orange --}}
+                                    <select name="user_id" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-uptag-orange px-4 py-3">
                                         @foreach($usuarios as $u) <option value="{{ $u->id }}">{{ $u->name }}</option> @endforeach
                                     </select>
                                 </div>
@@ -52,12 +57,13 @@
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Fechas (Inicio/Entrega)</label>
-                                <input type="date" name="fecha_inicio" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-2 mb-2">
-                                <input type="date" name="fecha_entrega" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-2">
+                                <input type="date" name="fecha_inicio" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-2 mb-2 focus:ring-2 focus:ring-uptag-orange">
+                                <input type="date" name="fecha_entrega" class="w-full bg-slate-50 border-0 rounded-xl px-4 py-2 focus:ring-2 focus:ring-uptag-orange">
                             </div>
-                            
+
                             {{-- Dropzones simplificados --}}
-                            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-indigo-300 transition-colors">
+                            {{-- Cambio: hover:border-orange-300 --}}
+                            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-orange-300 transition-colors">
                                 <input type="file" name="imagen" class="hidden" id="file-img">
                                 <label for="file-img" class="cursor-pointer text-xs font-semibold text-slate-500">📷 Subir Portada</label>
                             </div>
@@ -65,6 +71,7 @@
                     </div>
 
                     <div class="mt-8 flex justify-end">
+                        {{-- Botón Principal: Mantengo Slate 900 para contraste pero con sombra sutil naranja opcional (opción: bg-uptag-orange) --}}
                         <button type="submit" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">
                             Registrar Proyecto
                         </button>
@@ -91,7 +98,8 @@
                             @foreach($proyectos as $p)
                             <tr class="group hover:bg-slate-50/50 transition">
                                 <td class="py-5">
-                                    <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition">{{ $p->titulo }}</div>
+                                    {{-- Cambio: group-hover:text-uptag-orange --}}
+                                    <div class="font-bold text-slate-800 group-hover:text-uptag-orange transition">{{ $p->titulo }}</div>
                                     <span class="text-[10px] text-slate-400">{{ $p->tipo }}</span>
                                 </td>
                                 <td class="py-5 text-slate-600">{{ $p->user->name ?? '—' }}</td>
@@ -99,7 +107,8 @@
                                     <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full font-bold text-[10px]">Activo</span>
                                 </td>
                                 <td class="py-5 text-center">
-                                    <a href="{{ route('admin.proyectos.edit', $p->id) }}" class="text-indigo-600 font-bold hover:underline">Gestionar</a>
+                                    {{-- Cambio: text-uptag-orange --}}
+                                    <a href="{{ route('admin.proyectos.edit', $p->id) }}" class="text-uptag-orange font-bold hover:underline">Gestionar</a>
                                 </td>
                             </tr>
                             @endforeach
