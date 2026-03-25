@@ -1,26 +1,27 @@
 <x-app-layout>
-    <div class="py-12 bg-[#f8fafc] min-h-screen font-sans antialiased text-slate-900">
+    {{-- Contenedor principal con soporte para dark mode --}}
+    <div class="py-12 bg-[#f8fafc] dark:bg-slate-950 min-h-screen font-sans antialiased text-slate-900 dark:text-slate-100 transition-colors duration-500">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             {{-- HEADER: RELOJ Y ESTADO DEL SISTEMA --}}
             <div class="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-slate-800">Panel<span class="text-uptag-orange">Control</span></h1>
-                    <p class="text-slate-500 text-sm font-medium uppercase tracking-tighter">Control de asistencia y proyectos • Ciclo 2026</p>
+                    <h1 class="text-3xl font-black tracking-tight text-slate-800 dark:text-white">Panel<span class="text-uptag-orange">Control</span></h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-tighter">Control de asistencia y proyectos • Ciclo 2026</p>
                 </div>
 
                 <div class="relative group">
                     <div class="absolute -inset-1 bg-gradient-to-r from-uptag-orange to-orange-400 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-                    <div class="relative bg-white/70 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white shadow-xl flex items-center gap-6">
+                    <div class="relative bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white dark:border-slate-800 shadow-xl flex items-center gap-6">
                         <div class="text-right">
                             <div class="flex items-baseline gap-1">
-                                <span id="reloj" class="text-4xl font-black tracking-tighter tabular-nums text-slate-800">00:00:00</span>
+                                <span id="reloj" class="text-4xl font-black tracking-tighter tabular-nums text-slate-800 dark:text-white">00:00:00</span>
                                 <span id="ampm" class="text-xs font-black text-uptag-orange uppercase">AM</span>
                             </div>
-                            <div id="fecha-reloj" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cargando...</div>
+                            <div id="fecha-reloj" class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cargando...</div>
                         </div>
-                        <div class="h-10 w-[1px] bg-slate-200"></div>
-                        <div class="p-3 bg-orange-50 rounded-2xl text-uptag-orange">
+                        <div class="h-10 w-[1px] bg-slate-200 dark:bg-slate-700"></div>
+                        <div class="p-3 bg-orange-50 dark:bg-uptag-orange/10 rounded-2xl text-uptag-orange">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                     </div>
@@ -34,38 +35,36 @@
                         ['label' => 'Plantilla Total', 'val' => $totalUsuarios, 'color' => 'slate', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'],
                         ['label' => 'Confirmados', 'val' => $conteoPresentes, 'color' => 'emerald', 'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
                         ['label' => 'Por Confirmar', 'val' => $conteoAusentes ?? $conteoPendientes, 'color' => 'rose', 'icon' => 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                        // Cambio: indigo -> orange (se usará bg-orange-50 y text-orange-600)
                         ['label' => 'Ratio Asistencia', 'val' => $porcentajeAsistencias . '%', 'color' => 'orange', 'icon' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6']
                     ];
                 @endphp
 
                 @foreach($kpis as $kpi)
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all group">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-{{ $kpi['color'] }}-50 rounded-2xl text-{{ $kpi['color'] }}-600 group-hover:rotate-12 transition-transform">
+                        <div class="p-3 bg-{{ $kpi['color'] }}-50 dark:bg-{{ $kpi['color'] == 'orange' ? 'uptag-orange' : ($kpi['color'] == 'emerald' ? 'emerald-500' : ($kpi['color'] == 'rose' ? 'rose-500' : 'slate-500')) }}/10 rounded-2xl text-{{ $kpi['color'] }}-600 dark:text-{{ $kpi['color'] == 'orange' ? 'uptag-orange' : ($kpi['color'] == 'emerald' ? 'emerald-400' : ($kpi['color'] == 'rose' ? 'rose-400' : 'slate-400')) }} group-hover:rotate-12 transition-transform">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $kpi['icon'] }}"></path></svg>
                         </div>
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $kpi['label'] }}</span>
+                        <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ $kpi['label'] }}</span>
                     </div>
-                    <div class="text-4xl font-black text-slate-800 tracking-tighter">{{ $kpi['val'] }}</div>
+                    <div class="text-4xl font-black text-slate-800 dark:text-white tracking-tighter">{{ $kpi['val'] }}</div>
                 </div>
                 @endforeach
             </div>
 
             {{-- SECCIÓN DE PROYECTOS Y RENDIMIENTO --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-
                 {{-- GRÁFICO COMPARATIVO ASISTENCIA --}}
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <h3 class="font-black text-slate-400 uppercase text-[10px] tracking-[0.2em] mb-8 text-center">Status de Presencia</h3>
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800">
+                    <h3 class="font-black text-slate-400 dark:text-slate-500 uppercase text-[10px] tracking-[0.2em] mb-8 text-center">Status de Presencia</h3>
                     <div class="h-64 relative">
                         <canvas id="chartAsistencia"></canvas>
                     </div>
                 </div>
 
                 {{-- GRÁFICO PRODUCTIVIDAD --}}
-                <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <h3 class="font-black text-slate-400 uppercase text-[10px] tracking-[0.2em] mb-8">Carga de Trabajo por Usuario</h3>
+                <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800">
+                    <h3 class="font-black text-slate-400 dark:text-slate-500 uppercase text-[10px] tracking-[0.2em] mb-8">Carga de Trabajo por Usuario</h3>
                     <div class="h-64">
                         <canvas id="chartActividadUsuarios"></canvas>
                     </div>
@@ -74,42 +73,41 @@
 
             {{-- TABLAS DETALLADAS --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
                 {{-- TABLA: RANKING DE PROYECTOS --}}
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="px-8 py-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-                        <h3 class="font-black text-slate-700 text-sm uppercase">Ranking de Participación</h3>
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+                    <div class="px-8 py-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 flex items-center justify-between">
+                        <h3 class="font-black text-slate-700 dark:text-slate-200 text-sm uppercase">Ranking de Participación</h3>
                         <svg class="w-5 h-5 text-uptag-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead>
-                                <tr class="bg-white">
-                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-tighter">Usuario</th>
-                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase text-center">Proyectos</th>
-                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase">Eficiencia</th>
+                                <tr class="bg-white dark:bg-slate-900">
+                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tighter">Usuario</th>
+                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase text-center">Proyectos</th>
+                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">Eficiencia</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-50">
+                            <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
                                 @foreach($topUsuarios as $usuario)
-                                <tr class="hover:bg-orange-50/20 transition-colors group">
+                                <tr class="hover:bg-orange-50/20 dark:hover:bg-uptag-orange/5 transition-colors group">
                                     <td class="px-8 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded-xl bg-uptag-orange text-white flex items-center justify-center text-[10px] font-black shadow-lg shadow-orange-100">
+                                            <div class="w-8 h-8 rounded-xl bg-uptag-orange text-white flex items-center justify-center text-[10px] font-black shadow-lg shadow-orange-100 dark:shadow-none">
                                                 {{ substr($usuario->name, 0, 1) }}
                                             </div>
-                                            <span class="text-sm font-bold text-slate-700">{{ $usuario->name }}</span>
+                                            <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $usuario->name }}</span>
                                         </div>
                                     </td>
                                     <td class="px-8 py-4 text-center">
-                                        <span class="px-2 py-1 bg-slate-100 rounded-lg text-xs font-black text-slate-600">{{ $usuario->proyectos_count }}</span>
+                                        <span class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-black text-slate-600 dark:text-slate-400">{{ $usuario->proyectos_count }}</span>
                                     </td>
                                     <td class="px-8 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="flex-1 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                            <div class="flex-1 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                                                 <div class="bg-uptag-orange h-full" style="width: {{ min(($usuario->proyectos_count / 10) * 100, 100) }}%"></div>
                                             </div>
-                                            <span class="text-[10px] font-black text-slate-400">{{ min(($usuario->proyectos_count / 10) * 100, 100) }}%</span>
+                                            <span class="text-[10px] font-black text-slate-400 dark:text-slate-500">{{ min(($usuario->proyectos_count / 10) * 100, 100) }}%</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -120,42 +118,41 @@
                 </div>
 
                 {{-- TABLA: PENDIENTES DE ASISTENCIA --}}
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="px-8 py-6 border-b border-rose-50 bg-rose-50/30 flex items-center justify-between">
-                        <h3 class="font-black text-rose-600 text-sm uppercase">Pendientes de Registro (Hoy)</h3>
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+                    <div class="px-8 py-6 border-b border-rose-50 dark:border-rose-950/30 bg-rose-50/30 dark:bg-rose-950/10 flex items-center justify-between">
+                        <h3 class="font-black text-rose-600 dark:text-rose-400 text-sm uppercase">Pendientes de Registro (Hoy)</h3>
                         <div class="flex items-center gap-2">
                             <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-rose-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
                         </div>
                     </div>
-                    <div class="max-h-[400px] overflow-y-auto divide-y divide-slate-50">
+                    <div class="max-h-[400px] overflow-y-auto divide-y divide-slate-50 dark:divide-slate-800">
                         @forelse($usuariosAusentes as $usuario)
-                        <div class="px-8 py-5 flex items-center group hover:bg-rose-50/10 transition-all">
+                        <div class="px-8 py-5 flex items-center group hover:bg-rose-50/10 dark:hover:bg-rose-500/5 transition-all">
                             <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-2xl bg-white border-2 border-rose-100 flex items-center justify-center text-rose-400 shadow-sm group-hover:scale-105 transition-transform">
+                                <div class="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 border-2 border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-400 shadow-sm group-hover:scale-105 transition-transform">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-black text-slate-800">{{ $usuario->name }}</p>
+                                    <p class="text-sm font-black text-slate-800 dark:text-slate-200">{{ $usuario->name }}</p>
                                     <div class="flex items-center gap-2">
                                         <span class="text-[9px] font-bold text-rose-500 uppercase tracking-widest">Ausente</span>
-                                        <span class="h-1 w-1 bg-slate-300 rounded-full"></span>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Sin actividad reportada</p>
+                                        <span class="h-1 w-1 bg-slate-300 dark:bg-slate-700 rounded-full"></span>
+                                        <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">Sin actividad reportada</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         @empty
                         <div class="py-24 text-center">
-                            <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div class="w-16 h-16 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             </div>
-                            <p class="text-sm font-black text-slate-400 italic">¡Perfecto! Todos han registrado su asistencia.</p>
+                            <p class="text-sm font-black text-slate-400 dark:text-slate-500 italic">¡Perfecto! Todos han registrado su asistencia.</p>
                         </div>
                         @endforelse
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -182,7 +179,12 @@
         setInterval(actualizarReloj, 1000);
         actualizarReloj();
 
-        // --- CHART: ASISTENCIA (DONUT REFINADO) ---
+        // Detectar si el sistema está en modo oscuro
+        const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const gridColor = isDarkMode ? '#1e293b' : '#f1f5f9';
+        const labelColor = isDarkMode ? '#64748b' : '#94a3b8';
+
+        // --- CHART: ASISTENCIA ---
         const ctxAsistencia = document.getElementById('chartAsistencia').getContext('2d');
         new Chart(ctxAsistencia, {
             type: 'doughnut',
@@ -190,7 +192,6 @@
                 labels: ['Presentes', 'Pendientes'],
                 datasets: [{
                     data: [{{ $conteoPresentes }}, {{ $conteoAusentes ?? $conteoPendientes }}],
-                    // Cambio: #10b981 (Esmeralda) y #f18000 (Uptag Orange) para los estados
                     backgroundColor: ['#f18000', '#f43f5e'],
                     borderWidth: 0,
                     hoverOffset: 15
@@ -201,17 +202,23 @@
                 maintainAspectRatio: false,
                 cutout: '80%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10, weight: '900' } } }
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 8,
+                            color: labelColor,
+                            font: { size: 10, weight: '900' }
+                        }
+                    }
                 }
             }
         });
 
-        // --- CHART: ACTIVIDAD (BARRA GRADIENTE) ---
+        // --- CHART: ACTIVIDAD ---
         const ctxBarUser = document.getElementById('chartActividadUsuarios').getContext('2d');
         const gradient = ctxBarUser.createLinearGradient(0, 0, 0, 400);
-        // Cambio: Gradiente de Uptag Orange a Naranja claro
         gradient.addColorStop(0, '#f18000');
-        gradient.addColorStop(1, '#ffedd5');
+        gradient.addColorStop(1, isDarkMode ? '#1e1b16' : '#ffedd5');
 
         new Chart(ctxBarUser, {
             type: 'bar',
@@ -231,10 +238,13 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#f1f5f9' },
-                        ticks: { font: { size: 10, weight: '700' } }
+                        grid: { color: gridColor },
+                        ticks: { color: labelColor, font: { size: 10, weight: '700' } }
                     },
-                    x: { grid: { display: false }, ticks: { font: { size: 10, weight: '700' } } }
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: labelColor, font: { size: 10, weight: '700' } }
+                    }
                 },
                 plugins: { legend: { display: false } }
             }

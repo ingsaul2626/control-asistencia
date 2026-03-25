@@ -9,19 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void {
-    Schema::table('users', function (Blueprint $table) {
-        $table->softDeletes();
-    });
-}
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
+    public function up(): void
+{
+    if (!Schema::hasColumn('users', 'deleted_at')) {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->softDeletes();
         });
     }
+}
+
+public function down(): void
+{
+    if (Schema::hasColumn('users', 'deleted_at')) {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+    }
+}
 };

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -192,6 +193,22 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'Rol actualizado correctamente.');
     }
+
+
+    public function unlock($id)
+{
+    $user = User::findOrFail($id);
+
+    // Asegúrate de usar el nombre correcto: 'is_approved' o 'is_active'
+    $user->update(['is_approved' => true]);
+
+    // Limpiar los intentos fallidos
+    // Ahora 'Str' funcionará correctamente con el import
+    $key = Str::lower($user->email) . '|' . request()->ip();
+    app(\Illuminate\Cache\RateLimiter::class)->clear($key);
+
+    return back()->with('success', "Usuario {$user->name} desbloqueado correctamente.");
+}
 }
 
 

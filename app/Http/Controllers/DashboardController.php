@@ -55,6 +55,9 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+
+
+
         // 3. RETORNO ÚNICO (Al final de la función, con todas las variables)
         return view('dashboard', compact(
             'totalUsuarios',

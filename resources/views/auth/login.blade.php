@@ -1,13 +1,36 @@
 <x-guest-layout>
     <div class="mb-8 text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-2xl mb-4 shadow-inner">
-            <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 dark:bg-orange-500/10 rounded-2xl mb-4 shadow-inner">
+            <svg class="w-8 h-8 text-orange-600 dark:text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
         </div>
-        <h2 class="text-2xl font-black text-slate-800 tracking-tight italic uppercase">Bienvenido de nuevo</h2>
-        <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Ingresa tus credenciales para acceder</p>
+        <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight italic uppercase">Bienvenido de nuevo</h2>
+        <p class="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Ingresa tus credenciales para acceder</p>
     </div>
+
+    {{-- MENSAJE DE BLOQUEO ACTUALIZADO PARA MODO OSCURO --}}
+    @if ($errors->has('email'))
+        @php
+            $user = \App\Models\User::where('email', old('email'))->first();
+        @endphp
+
+        @if($user && !(bool)$user->is_approved)
+            <div class="mb-5 p-4 bg-rose-50 dark:bg-rose-500/10 border-l-4 border-rose-500 rounded-r-xl shadow-sm animate-pulse">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-rose-600 dark:text-rose-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-[10px] font-black text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+                        Cuenta Bloqueada por Seguridad
+                    </span>
+                </div>
+                <p class="mt-1 text-[9px] text-rose-600 dark:text-rose-400/80 font-bold leading-relaxed ml-7">
+                    Has excedido el límite de intentos. Contacta al administrador de la **UPTAG** para restaurar tu acceso.
+                </p>
+            </div>
+        @endif
+    @endif
 
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -16,8 +39,8 @@
 
         {{-- Email --}}
         <div class="space-y-1">
-            <x-input-label for="email" :value="__('Correo Electrónico')" class="text-slate-700 font-black text-[10px] uppercase tracking-widest ml-1" />
-            <x-text-input id="email" class="block w-full px-4 py-3 border-slate-200 focus:border-orange-500 focus:ring-orange-500 rounded-xl shadow-sm transition-all placeholder:text-slate-300"
+            <x-input-label for="email" :value="__('Correo Electrónico')" class="text-slate-700 dark:text-slate-400 font-black text-[10px] uppercase tracking-widest ml-1" />
+            <x-text-input id="email" class="block w-full px-4 py-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:border-orange-500 focus:ring-orange-500 rounded-xl shadow-sm transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700 dark:text-white text-sm"
                             type="email"
                             name="email"
                             :value="old('email')"
@@ -30,19 +53,19 @@
 
         {{-- Password --}}
         <div class="space-y-1" x-data="{ show: false }">
-            <x-input-label for="password" :value="__('Contraseña')" class="text-slate-700 font-black text-[10px] uppercase tracking-widest ml-1" />
+            <x-input-label for="password" :value="__('Contraseña')" class="text-slate-700 dark:text-slate-400 font-black text-[10px] uppercase tracking-widest ml-1" />
             <div class="relative">
                 <input :type="show ? 'text' : 'password'"
                        id="password"
                        name="password"
-                       class="block w-full pl-4 pr-12 py-3 border-slate-200 focus:border-orange-500 focus:ring-orange-500 rounded-xl shadow-sm transition-all placeholder:text-slate-300"
+                       class="block w-full pl-4 pr-12 py-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-orange-500 rounded-xl shadow-sm transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700 dark:text-white text-sm"
                        required
                        autocomplete="current-password"
                        placeholder="••••••••">
 
                 <button type="button"
                         @click="show = !show"
-                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-300 hover:text-orange-600 transition-colors focus:outline-none">
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-300 dark:text-slate-600 hover:text-orange-600 dark:hover:text-orange-500 transition-colors focus:outline-none">
                     <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -58,19 +81,19 @@
         {{-- Remember & Forgot --}}
         <div class="flex items-center justify-between mt-6">
             <label for="remember_me" class="inline-flex items-center cursor-pointer group">
-                <input id="remember_me" type="checkbox" class="rounded border-slate-300 text-orange-600 shadow-sm focus:ring-orange-500 transition-colors" name="remember">
-                <span class="ms-2 text-[11px] font-bold text-slate-400 group-hover:text-slate-600 uppercase tracking-tighter transition-colors">{{ __('Recordarme') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-orange-600 shadow-sm focus:ring-orange-500 transition-colors" name="remember">
+                <span class="ms-2 text-[11px] font-bold text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 uppercase tracking-tighter transition-colors">{{ __('Recordarme') }}</span>
             </label>
             @if (Route::has('password.request'))
-                <a class="text-xs font-black text-orange-600 hover:text-orange-500 transition-colors uppercase tracking-tighter" href="{{ route('password.request') }}">
+                <a class="text-xs font-black text-orange-600 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors uppercase tracking-tighter" href="{{ route('password.request') }}">
                     {{ __('¿Olvidaste tu contraseña?') }}
                 </a>
             @endif
         </div>
 
         {{-- Captcha --}}
-        <div id="captcha-wrapper" class="mt-6 flex flex-col items-center bg-orange-50/50 p-4 rounded-2xl border border-orange-100/50 shadow-inner" style="display: none;">
-            <div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}"></div>
+        <div id="captcha-wrapper" class="mt-6 flex flex-col items-center bg-orange-50/50 dark:bg-orange-500/5 p-4 rounded-2xl border border-orange-100/50 dark:border-orange-500/10 shadow-inner" style="display: none;">
+            <div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}" data-theme="light"></div>
             @if ($errors->has('g-recaptcha-response'))
                 <p class="text-[10px] text-rose-600 mt-2 font-black uppercase tracking-wider">{{ $errors->first('g-recaptcha-response') }}</p>
             @endif
@@ -78,15 +101,15 @@
 
         {{-- Actions --}}
         <div class="flex flex-col gap-4 mt-8">
-            <x-primary-button id="login-btn" class="w-full justify-center bg-orange-600 hover:bg-orange-700 text-white font-black py-4 rounded-xl shadow-xl shadow-orange-200 transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-xs">
+            <x-primary-button id="login-btn" class="w-full justify-center bg-orange-600 dark:bg-orange-600 hover:bg-orange-700 dark:hover:bg-orange-500 text-white font-black py-4 rounded-xl shadow-xl shadow-orange-200 dark:shadow-none transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-xs">
                 {{ __('Iniciar Sesión') }}
             </x-primary-button>
 
             @if (Route::has('register'))
                 <div class="text-center pt-2">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter">
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">
                         ¿No tienes una cuenta?
-                        <a href="{{ route('register') }}" class="font-black text-orange-600 hover:text-orange-500 hover:underline decoration-2 underline-offset-4 transition-all">
+                        <a href="{{ route('register') }}" class="font-black text-orange-600 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 hover:underline decoration-2 underline-offset-4 transition-all">
                             Regístrate ahora
                         </a>
                     </p>
@@ -99,6 +122,7 @@
     <script>
         function checkCaptchaStatus() {
             const captchaContainer = document.getElementById('captcha-wrapper');
+            // Nota: Para reCAPTCHA en dark mode, podrías cambiar el atributo data-theme dinámicamente si es necesario.
             if (navigator.onLine) {
                 captchaContainer.style.display = 'flex';
             } else {

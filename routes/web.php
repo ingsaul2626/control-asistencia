@@ -119,8 +119,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::get('/proyectos/{id}/finalizar', [App\Http\Controllers\UserController::class, 'finalizarProyecto'])->name('proyectos.finalizar');
 
 
-    Route::get('/proyectos/descargar/{id}', [UserController::class, 'descargarArchivo'])
-         ->name('proyectos.descargar');
+    Route::get('/proyectos/descargar/{id}', [UserController::class, 'descargarArchivo'])->name('proyectos.descargar');
 });
 
 Route::get('/proyecto/{id}', [ProyectoController::class, 'show'])->name('eventos.show');

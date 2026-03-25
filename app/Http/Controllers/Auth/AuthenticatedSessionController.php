@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use Illuminate\Validation\ValidationException;
 
+
 class AuthenticatedSessionController extends Controller
 {
     public function create(): View
@@ -21,7 +22,7 @@ class AuthenticatedSessionController extends Controller
 
     public function store(LoginRequest $request): RedirectResponse
 {
-    // 1. VALIDACIÓN DEL RECAPTCHA (Esto está bien)
+    // 1. VALIDACIÓN DEL RECAPTCHA
     if ($request->has('g-recaptcha-response')) {
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret'   => env('NOCAPTCHA_SECRET'),
@@ -30,43 +31,72 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         if (!$response->json('success')) {
-    throw ValidationException::withMessages([
-        'g-recaptcha-response' => 'La verificación falló. Inténtalo de nuevo.',
-    ]);
-
+            throw ValidationException::withMessages([
+                'g-recaptcha-response' => 'La verificación falló. Inténtalo de nuevo.',
+            ]);
+        }
     }
 
-    // 2. AUTENTICACIÓN
-    $request->authenticate();
-    $request->session()->regenerate();
+    try {
+        // 2. INTENTO DE AUTENTICACIÓN
+        $request->authenticate();
 
-    $user = Auth::user();
+        $user = Auth::user();
 
-    // 3. FILTRO: Estado de aprobación (CORREGIDO)
-    // Usamos el campo booleano is_approved
-    if (!(bool)$user->is_approved) {
-        Auth::logout();
-        return redirect()->route('waiting-approval')
-                         ->with('error', 'Tu cuenta está pendiente de aprobación.');
+        // 3. VERIFICAR SI ESTÁ APROBADO O BLOQUEADO
+        if (!(bool)$user->is_approved) {
+            Auth::logout();
+            return redirect()->route('login')
+                ->with('error', 'Tu cuenta está bloqueada o pendiente de aprobación. Contacta al admin.');
+        }
+
+        // Si el login es exitoso, reiniciamos la sesión
+        $request->session()->regenerate();
+
+        // 4. REGISTRO EN BITÁCORA
+        Bitacora::create([
+            'user_id' => $user->id,
+            'accion' => 'Inicio de sesión',
+            'detalles' => 'El usuario ha ingresado al sistema con éxito.',
+            'ip' => $request->ip(),
+        ]);
+
+        // 5. REDIRECCIÓN SEGÚN ROL
+        return $user->role === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect()->intended(route('dashboard', absolute: false));
+
+    } catch (ValidationException $e) {
+        // --- LÓGICA DE BLOQUEO POR INTENTOS ---
+
+        // Buscamos si el usuario existe por el email ingresado
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if ($user && (bool)$user->is_approved) {
+            // Usamos el RateLimiter de Laravel para contar intentos por IP/Email
+            $attempts = \Illuminate\Support\Facades\RateLimiter::attempts($request->throttleKey());
+
+            if ($attempts >= 3) {
+                $user->update(['is_approved' => false]); // Lo bloqueamos
+
+                // Opcional: Registrar el bloqueo en la bitácora
+                Bitacora::create([
+                    'user_id' => $user->id,
+                    'accion' => 'Bloqueo de cuenta',
+                    'detalles' => 'Cuenta bloqueada tras 3 intentos fallidos.',
+                    'ip' => $request->ip(),
+                ]);
+
+                throw ValidationException::withMessages([
+                    'email' => 'Tu cuenta ha sido bloqueada por demasiados intentos fallidos. Contacta al administrador.',
+                ]);
+            }
+        }
+
+        // Si no ha llegado a 3, relanzamos la excepción normal de Laravel
+        throw $e;
     }
-
-    // 4. REGISTRO EN BITÁCORA
-    Bitacora::create([
-        'user_id' => $user->id,
-        'accion' => 'Inicio de sesión',
-        'detalles' => 'El usuario ha ingresado al sistema con éxito.',
-        'ip' => $request->ip(),
-    ]);
-
-    // 5. REDIRECCIÓN SEGÚN ROL
-    if ($user->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
-
-    return redirect()->intended(route('dashboard', absolute: false));
 }
-}
-
 
     public function destroy(Request $request): RedirectResponse
     {

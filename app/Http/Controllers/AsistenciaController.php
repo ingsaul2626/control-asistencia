@@ -19,10 +19,16 @@ class AsistenciaController extends Controller
     $User = \App\Models\User::where('role', 'user')->get();
 
     // 3. Obtener asistencias de esa fecha
-    $asistenciasHoy = \App\Models\Asistencia::where('fecha', $fecha)->get()->keyBy('user_id');
+    $asistenciaDeHoy = \App\Models\Asistencia::where('user_id', auth()->id())
+        ->where('fecha', $fecha)
+        ->first();
+    $historialAsistencias = \App\Models\Asistencia::where('user_id', auth()->id())
+        ->latest('fecha')
+        ->take(10) // Traemos las últimas 10
+        ->get();
 
     // 4. Retornar la vista pasando los datos
-    return view('asistencias.index', compact('User', 'fecha', 'asistenciasHoy'));
+       return view('asistencias.index', compact('User', 'fecha', 'asistenciaDeHoy', 'historialAsistencias'));
 }
     /**
      * ACCIÓN DEL ADMIN: Crea la jornada.
